@@ -1,4 +1,9 @@
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in rails_apps_composer.gemspec
-gemspec
+gem 'rails', '4.1.16'
+
+
+group :development do
+  gem 'pry-remote'
+  gem 'ruby-debug-ide'
+end
