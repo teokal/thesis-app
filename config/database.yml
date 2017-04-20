@@ -11,22 +11,19 @@
 #
 default: &default
   adapter: mysql2
-  encoding: utf8
   pool: 5
+  timeout: 5000
+  encoding: utf8mb4
+  collation: utf8mb4_bin
+  reconnect: false
 
 development:
   <<: *default
-  database: thesis-app_development
+  database: moodle
   username: root
   password:
   host: localhost
 
-development_sec:
-  <<: *default
-  database: thesis-app_development
-  username: root
-  password:
-  host: localhost
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -56,6 +53,6 @@ test:
 #
 production:
   <<: *default
-  database: thesis-app_production
-  username: thesis-app
+  database: moodle
+  username: root
   password: <%= ENV['THESIS-APP_DATABASE_PASSWORD'] %>
