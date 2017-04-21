@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  get '/home' => 'application#home', as: :home_page
+  root 'application#home', as: :home_page
   get '/user' => 'user#index'
 
   # The priority is based upon order of creation: first created -> highest priority.
