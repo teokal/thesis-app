@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ThesisApp</title>
+
+</head>
+<body>
+<% @response.each do |resp| %>
+    <p>Fullname: <%= resp['_source']['fullname'].html_safe %></p>
+    <p>Date: <%= resp['_source']['@timestamp'] %></p>
+    <p>Action: <%= resp['_source']['action'] %></p>
+    <br/>
+<% end %>
+</body>
+</html>
