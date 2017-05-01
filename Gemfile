@@ -47,3 +47,10 @@ gem 'elasticsearch-rails'
 gem 'devise'
 
 gem 'pry'
+
+# fabulous charts - from github.com/PerfectlyNormal/highcharts-rails
+gem 'highcharts-rails'
+
+# fabulous ruby charts
+gem 'chartkick'
+gem 'groupdate'
