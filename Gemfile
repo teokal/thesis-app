@@ -45,7 +45,9 @@ gem 'elasticsearch-rails'
 
 # fabulous devise
 gem 'devise'
+gem 'bcrypt', git: 'https://github.com/codahale/bcrypt-ruby.git', :require => 'bcrypt'
 
+gem 'kaminari'
 gem 'pry'
 
 # fabulous charts - from github.com/PerfectlyNormal/highcharts-rails
@@ -53,4 +55,3 @@ gem 'highcharts-rails'
 
 # fabulous ruby charts
 gem 'chartkick'
-gem 'groupdate'

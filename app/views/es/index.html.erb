@@ -2,14 +2,23 @@
 <html>
 <head>
   <title>ThesisApp</title>
+  <%#= javascript_include_tag '//www.google.com/jsapi' %>
+  <%= javascript_include_tag 'chartkick' %>
+  <%= javascript_include_tag 'https://www.gstatic.com/charts/loader.js' %>
 
 </head>
 <body>
-<% @response.each do |resp| %>
-    <p>Fullname: <%= resp['_source']['fullname'].html_safe %></p>
-    <p>Date: <%= resp['_source']['@timestamp'] %></p>
-    <p>Action: <%= resp['_source']['action'] %></p>
+<%= @total %>
+
+<%#= line_chart @response.group_by { |h| (h[:date].month > 3) ? h[:date].year : h[:date].year - 1 } %>
+<%= line_chart( @response.map {|k,v| [k, v.length]} ) %>
+
+<%# @response.each do |resp| %>
+<%#= resp.as_json %>
+    <!--<p>Fullname: <%#= resp['_source']['fullname'] %></p>-->
+    <!--<p>Date: <%#= resp['_source']['@timestamp'] %></p>-->
+    <!--<p>Action: <%#= resp['_source']['action'] %></p>-->
     <br/>
-<% end %>
+<%# end %>
 </body>
 </html>
