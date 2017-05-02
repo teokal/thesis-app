@@ -55,3 +55,4 @@ gem 'highcharts-rails'
 
 # fabulous ruby charts
 gem 'chartkick'
+gem 'groupdate'

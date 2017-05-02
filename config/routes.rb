@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   root 'application#home', as: :home_page
   get '/user' => 'user#index'
 
-  get '/fabulous/:query_string' => 'es#index'
+  match '/fabulous/:query_string' => 'es#index', via: [:get, :post]
 
   resources :courses
 

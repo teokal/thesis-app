@@ -2,9 +2,11 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'date'
+require 'time'
 
 class EsController < ApplicationController
 
+  #
   def index
 
     # response = Log.search'action:'+ params['query_string'],
@@ -14,6 +16,8 @@ class EsController < ApplicationController
     # 	index: 'moodle-*', type: 'logs', from: 0, size: params[:size])
 
     # @response = response.page(params[:page]).results
+
+
 
     uri = URI.parse('http://83.212.100.184:9200/moodle-*/_search?scroll=1m')
     request = Net::HTTP::Get.new(uri)
@@ -32,6 +36,7 @@ class EsController < ApplicationController
                                bool: {
                                  must: [
                                    {
+                                       # login, view etc
                                      match: {
                                        action: {
                                          query: params['query_string'],
@@ -40,10 +45,12 @@ class EsController < ApplicationController
                                      }
                                    },
                                    {
+                                       # range - περιοδος εμφανισης αποτελεσμάτων
+                                       # TODO δυναμικα, επιλογη περιοδο απο χρηστη
                                      range: {
                                        time: {
-                                         gte: 1194173788,
-                                         lte: 1421146999
+                                         gte: (Time.now.to_datetime - (params['time']||1).to_i.months).to_time.to_i,
+                                         lte: Time.now.to_i
                                        }
                                      }
                                    }
@@ -88,8 +95,8 @@ class EsController < ApplicationController
                                            {
                                                range: {
                                                    time: {
-                                                       gte: 1194173788,
-                                                       lte: 1421146999
+                                                       gte: (Time.now.to_datetime - (params['time']||1).to_i.months).to_time.to_i,
+                                                       lte: Time.now.to_i
                                                    }
                                                }
                                            }
@@ -115,5 +122,10 @@ class EsController < ApplicationController
     @response = @response.group_by { |h| h[:date] }
     @total = @responses.count
 
+    # TODO 2007 to months
+    @time_values = [['1 month', 1], ['2 months', 2], ['6 months', 6], ['1 year', 12], ['2 years', 24], ['since 2007', 120]]
+
   end
+
+
 end
