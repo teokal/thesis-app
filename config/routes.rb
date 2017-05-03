@@ -1,12 +1,14 @@
 Rails.application.routes.draw do
 
   devise_for :users
-  root 'application#home', as: :home_page
+  root 'application#index', as: :home_page
   get '/user' => 'user#index'
 
-  match '/fabulous/:query_string' => 'es#index', via: [:get, :post]
+  get '/logs' => 'es#show', via: :get, as: :logs_page
 
-  resources :courses
+  get '/fabulous/login' => 'es#logins', via: :get, as: :logins_page
+  get '/fabulous/logout' => 'es#logouts', via: :get, as: :logouts_page
+  get '/fabulous/view' => 'es#writes', via: :get, as: :writes_page
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

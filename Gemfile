@@ -5,7 +5,7 @@ gem 'rails', '4.1.16'
 # Use mysql as the database for Active Record
 gem 'mysql2', '~> 0.3.13'
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0.3'
+#gem 'sass-rails', '~> 4.0.3'``
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
@@ -45,6 +45,7 @@ gem 'elasticsearch-rails'
 
 # fabulous devise
 gem 'devise'
+gem 'devise-bootstrap-views'
 gem 'bcrypt', git: 'https://github.com/codahale/bcrypt-ruby.git', :require => 'bcrypt'
 
 gem 'kaminari'
@@ -56,3 +57,6 @@ gem 'highcharts-rails'
 # fabulous ruby charts
 gem 'chartkick'
 gem 'groupdate'
+
+gem 'bootstrap-sass', '~> 3.3.6'
+gem 'sass-rails', '>= 3.2'
