@@ -1,0 +1,31 @@
+default: &default
+  adapter: mysql2
+  pool: 5
+  timeout: 5000
+  encoding: utf8mb4
+  collation: utf8mb4_bin
+  reconnect: false
+
+development:
+  <<: *default
+  database: <%= Rails.application.secrets[:database_moodle][:name] %>
+  username: <%= Rails.application.secrets[:database_moodle][:username] %>
+  password: <%= Rails.application.secrets[:database_moodle][:password] %>
+  host: <%= Rails.application.secrets[:database_moodle][:host] %>
+  port: <%= Rails.application.secrets[:database_moodle][:port] %>
+
+test:
+  <<: *default
+  database: <%= Rails.application.secrets[:database_moodle][:name] %>
+  username: <%= Rails.application.secrets[:database_moodle][:username] %>
+  password: <%= Rails.application.secrets[:database_moodle][:password] %>
+  host: <%= Rails.application.secrets[:database_moodle][:host] %>
+  port: <%= Rails.application.secrets[:database_moodle][:port] %>
+
+
+production:
+  <<: *default
+  host: <%= ENV['MOODLE_DATABASE_HOST'] %>
+  database: <%= ENV['MOODLE_DATABASE_DATABASE'] %>
+  username: <%= ENV['MOODLE_DATABASE_USERNAME'] %>
+  password: <%= ENV['MOODLE_DATABASE_PASSWORD'] %>

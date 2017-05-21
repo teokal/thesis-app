@@ -1,0 +1,3 @@
+class MoodleController < ApplicationController
+
+end

@@ -10,6 +10,10 @@ Rails.application.routes.draw do
   get '/fabulous/logout' => 'es#logouts', via: :get, as: :logouts_page
   get '/fabulous/view' => 'es#writes', via: :get, as: :writes_page
 
+  get '/courses' => 'course#index'
+  get '/courses/:id' => 'course#show'
+  get '/courses/:id/moodle' => 'course#show_moodle'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
