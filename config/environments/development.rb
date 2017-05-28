@@ -2,6 +2,8 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   ENV['MOODLE_DB_PREFIX'] = 'mdl_'
+  ENV['ES_HOST_URL'] = '83.212.100.184:9200'
+  ENV['ES_INDEX'] = 'moodle-*'
 
   # Fabulous Devise - Login
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }

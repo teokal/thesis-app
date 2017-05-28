@@ -38,10 +38,12 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # gem 'tzinfo-data', platforms: [:mingw, :mswin]
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
 
-# i am fabulous
+# ElasticSearch
 gem 'elasticsearch'
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
+gem 'elasticsearch-api', git: 'git://github.com/elasticsearch/elasticsearch-ruby.git'
+gem 'elasticsearch-dsl', git: 'git://github.com/elasticsearch/elasticsearch-ruby.git'
 
 # fabulous devise
 gem 'devise'

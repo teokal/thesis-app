@@ -6,9 +6,7 @@ Rails.application.routes.draw do
 
   get '/logs' => 'es#show', via: :get, as: :logs_page
 
-  get '/fabulous/login' => 'es#logins', via: :get, as: :logins_page
-  get '/fabulous/logout' => 'es#logouts', via: :get, as: :logouts_page
-  get '/fabulous/view' => 'es#writes', via: :get, as: :writes_page
+  get '/fabulous' => 'es#show_action', via: :get, as: :fabulous_page
 
   get '/courses' => 'course#index'
   get '/courses/:id' => 'course#show'

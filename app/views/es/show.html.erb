@@ -16,6 +16,10 @@
             <div class="col-xs-2">
               <%= select_tag :from_date, options_for_select(@time_values, @from_date), class: 'form-control' %>
             </div>
+            <%= label_tag :action, nil, class: 'control-label col-sm-2' %>
+            <div class="col-xs-2">
+              <%= select_tag :query, options_for_select(%w[view login logout update], @query), class: 'form-control' %>
+            </div>
           </div>
           <div class="col-xs-4">
             <%= submit_tag 'submit' %>
@@ -24,14 +28,8 @@
           </div>
       <% end -%>
       </div>
+  <h2>Action <%= @query.capitalize %></h2>
   <div class="row">
-    <%= line_chart "#{logins_page_path}?from_date=#{@from_date}&to_date=#{@to_date}", label: 'Logins' %>
+    <%= line_chart "#{fabulous_page_path}?query=#{@query}&from_date=#{@from_date}&to_date=#{@to_date}" %>
   </div>
-  <div class="row">
-    <%= line_chart "#{logouts_page_path}?from_date=#{@from_date}&to_date=#{@to_date}", label: 'Logouts' %>
-  </div>
-  <div class="row">
-    <%= line_chart "#{writes_page_path}?from_date=#{@from_date}&to_date=#{@to_date}", label: 'Writes' %>
-  </div>
-</div>
 </div>
