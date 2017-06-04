@@ -23,10 +23,11 @@ class EsController < ApplicationController
   def show_action
     actions(params[:from_date],
             params[:to_date],
-            params[:query])
+            params[:query],
+            params[:view])
   end
 
-  def actions(from_date, to_date, query)
+  def actions(from_date, to_date, query, view)
     data = []
     client = Elasticsearch::Client.new url: ENV['ES_HOST_URL']
 
@@ -41,13 +42,14 @@ class EsController < ApplicationController
                                                    query: '*'}
                                    },
                                    { range: {
-                                     '@timestamp' => { gte: "now-#{from_date}M/d",
-                                                       lte: "now-#{to_date}M/d"
+                                     '@timestamp' => { gte: '01-01-2007',
+                                                       lte: '2018',
+                                                       format: 'dd-MM-yyyy||yyyy'
                                    }}}
                                  ]}},
                                aggregations: {
                                  sums: { date_histogram: { field: '@timestamp',
-                                                           interval: 'month',
+                                                           interval: view,
                                                            time_zone: 'Europe/Athens',
                                                            min_doc_count: 1,
                                                            format: 'yyyy-MM-dd'}}
@@ -60,7 +62,8 @@ class EsController < ApplicationController
     response['aggregations']['sums']['buckets'].each do |row|
       data << [row['key_as_string'], row['doc_count']]
     end
-    render json: data
+
+    data.to_h
 
   end
 

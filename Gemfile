@@ -40,15 +40,20 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
 
 # ElasticSearch
 gem 'elasticsearch'
+gem 'elasticsearch-api', git: 'https://github.com/elasticsearch/elasticsearch-ruby.git'
+gem 'elasticsearch-dsl', git: 'https://github.com/elasticsearch/elasticsearch-ruby.git'
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
-gem 'elasticsearch-api', git: 'git://github.com/elasticsearch/elasticsearch-ruby.git'
-gem 'elasticsearch-dsl', git: 'git://github.com/elasticsearch/elasticsearch-ruby.git'
+
 
 # fabulous devise
+gem 'bcrypt', git: 'https://github.com/codahale/bcrypt-ruby.git', require: 'bcrypt'
 gem 'devise'
 gem 'devise-bootstrap-views'
-gem 'bcrypt', git: 'https://github.com/codahale/bcrypt-ruby.git', :require => 'bcrypt'
+
+
+# API
+gem 'rocket_pants', '~> 1.0'
 
 gem 'kaminari'
 gem 'pry'

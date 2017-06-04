@@ -1,16 +1,24 @@
 Rails.application.routes.draw do
 
   devise_for :users
+
+  namespace :api do
+    api version: 1, module: 'v1' do
+      get 'logs_per_action', to: 'api#logs_per_action'
+
+    end
+  end
+
   root 'application#index', as: :home_page
-  get '/user' => 'user#index'
+  get '/user', to: 'user#index'
 
-  get '/logs' => 'es#show', via: :get, as: :logs_page
+  get '/logs', to: 'es#show', via: :get, as: :logs_page
 
-  get '/fabulous' => 'es#show_action', via: :get, as: :fabulous_page
+  get '/fabulous', to: 'es#show_action', via: :get, as: :fabulous_page
 
-  get '/courses' => 'course#index'
-  get '/courses/:id' => 'course#show'
-  get '/courses/:id/moodle' => 'course#show_moodle'
+  get '/courses', to: 'course#index'
+  get '/courses/:id', to: 'course#show'
+  get '/courses/:id/moodle', to: 'course#show_moodle'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
