@@ -3,10 +3,27 @@ class Api::V1::ApiController < RocketPants::Base
 
   RocketPants::Base.version 1
 
+  def test
+    id = params[:id].blank? ? 0 : params[:id]
+    data = { id: id,
+             message: "Test #{id}",
+             authorized: @user_access }
+    success_response(data: data)
+
+  rescue => error
+    Rails.logger.error(error.message)
+    error_response(type: :internal_error)
+  end
+
+
   def logs_per_action
     cont = EsController.new
     response = cont.actions(params[:from], params[:to], params[:query], params[:view])
     success_response(data: response)
+
+  rescue => error
+    Rails.logger.error(error.message)
+    error_response(type: :internal_error)
   end
 
   protected
@@ -15,7 +32,10 @@ class Api::V1::ApiController < RocketPants::Base
     Rails.logger.info("REMOTE_ADDR: #{request.env['REMOTE_ADDR']}")
     if authenticate_entity_access
       @user_access = true
+    elsif params[:action] == 'test'
+      @user_access = false
     else
+      @user_access = false
       render_unauthorized
     end
   end
