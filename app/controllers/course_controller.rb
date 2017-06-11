@@ -1,16 +1,15 @@
 class CourseController < ApplicationController
 
   def index
-    @courses = Course.all
+    Course.all
   end
 
-  def show
-    @course = Course.find_by(id: params[:id])
+  def show(id)
+    Course.find_by(id: id)
   end
 
-  def show_moodle
-    @course = Course.find_by(moodle_id: params[:id])
-    render 'course/show'
+  def show_moodle(id)
+    Course.find_by(moodle_id: id)
   end
 
 end

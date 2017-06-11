@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     api version: 1, module: 'v1' do
       get 'test', to: 'api#test'
       get 'logs_per_action', to: 'api#logs_per_action'
+      get 'course', to: 'course#get'
+      get 'user', to: 'user#get'
 
     end
   end
