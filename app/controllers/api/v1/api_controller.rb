@@ -1,6 +1,8 @@
 class Api::V1::ApiController < RocketPants::Base
   before_action :authenticate_access
 
+  after_filter :set_access
+
   RocketPants::Base.version 1
 
   def test
@@ -54,7 +56,10 @@ class Api::V1::ApiController < RocketPants::Base
   end
 
   def set_access
-    @response.headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE, OPTIONS'
+    headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, Token'
+    headers['Access-Control-Max-Age'] = '1728000'
   end
 
   def success_response(additional_fields = {})
