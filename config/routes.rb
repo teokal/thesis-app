@@ -5,9 +5,12 @@ Rails.application.routes.draw do
   namespace :api do
     api version: 1, module: 'v1' do
       get 'test', to: 'api#test'
+      get 'actions', to: 'api#actions'
       get 'logs_per_action', to: 'api#logs_per_action'
-      get 'course', to: 'course#get'
-      get 'user', to: 'user#get'
+      get 'course', to: 'course#show'
+      get 'user', to: 'user#show'
+      get 'user/courses', to: 'user#courses'
+      get 'user/courses/logs', to: 'course#logs'
 
     end
   end

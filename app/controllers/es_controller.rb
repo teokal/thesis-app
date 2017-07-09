@@ -24,10 +24,12 @@ class EsController < ApplicationController
     actions(params[:from_date],
             params[:to_date],
             params[:query],
-            params[:view])
+            params[:view],
+            Course.find_by(id: params[:course])
+    )
   end
 
-  def actions(from_date, to_date, query, view)
+  def actions(from_date, to_date, query, view, course)
     data = []
     client = Elasticsearch::Client.new url: ENV['ES_HOST_URL']
 
@@ -36,14 +38,15 @@ class EsController < ApplicationController
                                size: 0,
                                query: {
                                  bool: { must: [
-                                   { match: { action: { query: query, type: 'phrase' }}
-                                   },
+                                   { match: { module: { query: 'course', type: 'phrase' }}},
+                                   { match: { course: { query: course.moodle_id, type: 'phrase' }}},
+                                   { match: { action: { query: query, type: 'phrase' }}},
                                    { query_string: { analyze_wildcard: true,
                                                    query: '*'}
                                    },
                                    { range: {
-                                     '@timestamp' => { gte: '01-01-2007',
-                                                       lte: '2018',
+                                     '@timestamp' => { gte: from_date,
+                                                       lte: to_date,
                                                        format: 'dd-MM-yyyy||yyyy'
                                    }}}
                                  ]}},

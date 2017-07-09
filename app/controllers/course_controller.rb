@@ -5,11 +5,13 @@ class CourseController < ApplicationController
   end
 
   def show(id)
-    Course.find_by(id: id)
+    course = Course.find_by(id: id)
+    course.nil? ? {type: :error, message: 'Course not found'} : course
   end
 
   def show_moodle(id)
-    Course.find_by(moodle_id: id)
+    course = Course.find_by(moodle_id: id)
+    course.nil? ? {type: :error, message: 'Course not found'} : course
   end
 
 end

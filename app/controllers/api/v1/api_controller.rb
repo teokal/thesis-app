@@ -20,12 +20,16 @@ class Api::V1::ApiController < RocketPants::Base
 
   def logs_per_action
     cont = EsController.new
-    response = cont.actions(params[:from], params[:to], params[:query], params[:view])
+    response = cont.actions(params[:from], params[:to], params[:query], params[:view], params[:course])
     success_response(data: response)
 
   rescue => error
     Rails.logger.error(error.message)
     error_response(type: :internal_error)
+  end
+
+  def actions
+    success_response( actions: %w(new enrol guest unenrol view section) )
   end
 
   protected

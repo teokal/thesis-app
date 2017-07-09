@@ -6,6 +6,8 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :courses, join_table: :users_courses
 
+  has_secure_token :access_token
+
   def add_course(course)
     course = Course.find_by(id: course)
     courses << course if course
