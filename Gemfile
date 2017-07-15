@@ -11,7 +11,7 @@ gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
-# gem 'therubyracer',  platforms: :ruby
+ gem 'therubyracer',  platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -69,3 +69,5 @@ gem 'bootstrap-sass', '~> 3.3.6'
 gem 'sass-rails', '>= 3.2'
 
 gem 'has_secure_token'
+
+gem 'rack-cors', :require => 'rack/cors'
