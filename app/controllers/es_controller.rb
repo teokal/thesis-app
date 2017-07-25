@@ -66,7 +66,7 @@ class EsController < ApplicationController
                              }
 
     response['aggregations']['sums']['buckets'].each do |row|
-      data << {key: row['key_as_string'], value: row['doc_count']}
+      data << {date: row['key_as_string'], value: row['doc_count']}
     end
 
     data
