@@ -21,12 +21,15 @@ class EsController < ApplicationController
   end
 
   def show_action
-    actions(params[:from_date],
+    course = Course.find_by(id: params[:course])
+    {data: actions(params[:from_date],
             params[:to_date],
             params[:query],
             params[:view],
-            Course.find_by(id: params[:course])
-    )
+            course
+          ) #,
+    # course: course.as_json(only: [:id, :shortcode, :full_name])
+    }
   end
 
   def actions(from_date, to_date, query, view, course)
@@ -63,10 +66,10 @@ class EsController < ApplicationController
                              }
 
     response['aggregations']['sums']['buckets'].each do |row|
-      data << [row['key_as_string'], row['doc_count']]
+      data << {key: row['key_as_string'], value: row['doc_count']}
     end
 
-    data.to_h
+    data
 
   end
 

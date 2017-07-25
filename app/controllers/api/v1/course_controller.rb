@@ -25,7 +25,7 @@ class Api::V1::CourseController < Api::V1::ApiController
     if response[:type] == :error
       success_response(type: :error, message: response[:message])
     else
-      success_response(data: response)
+      success_response(data: response[:data])
     end
   rescue => error
     Rails.logger.debug(error.message)
