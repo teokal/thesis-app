@@ -58,7 +58,7 @@ class EsController < ApplicationController
                                                            interval: view,
                                                            time_zone: 'Europe/Athens',
                                                            min_doc_count: 1,
-                                                           format: 'yyyy-MM-dd'}}
+                                                           format: 'basic_date_time'}}
                                },
                                sort: {'@timestamp' => {
                                    order: 'desc', unmapped_type: 'boolean'}
