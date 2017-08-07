@@ -22,14 +22,34 @@ class EsController < ApplicationController
 
   def show_action
     course = Course.find_by(id: params[:course])
-    {data: actions(params[:from_date],
-            params[:to_date],
-            params[:query],
-            params[:view],
-            course
-          ) #,
-    # course: course.as_json(only: [:id, :shortcode, :full_name])
-    }
+    queries = params[:query].split(',')
+    if params[:query] == 'all' || queries.count >= 2
+      data_table = []
+      keys = params[:query] == 'all' ? %w(login logout view) : queries
+      keys.each do |query|
+        data_table << Hash[query, actions(params[:from_date], params[:to_date], query, params[:view], course)]
+      end
+
+      data_t = data_table.inject({}) do | a, e |
+        action, data = e.first
+        data.each do | x |
+          a[x[:date]] ||= Hash[keys.product([0])]
+          a[x[:date]][action] = x[:value]
+        end
+        a
+      end
+      data_t = data_t.map { | k, v | v.update(:date => k) }
+      {data: data_t}
+
+    else
+      {data: actions(params[:from_date],
+                     params[:to_date],
+                     params[:query],
+                     params[:view],
+                     course
+      )}
+    end
+
   end
 
   def actions(from_date, to_date, query, view, course)
@@ -41,7 +61,7 @@ class EsController < ApplicationController
                                size: 0,
                                query: {
                                  bool: { must: [
-                                   { match: { module: { query: 'course', type: 'phrase' }}},
+                                   # { match: { module: { query: 'course', type: 'phrase' }}},
                                    { match: { course: { query: course.moodle_id, type: 'phrase' }}},
                                    { match: { action: { query: query, type: 'phrase' }}},
                                    { query_string: { analyze_wildcard: true,
@@ -58,7 +78,7 @@ class EsController < ApplicationController
                                                            interval: view,
                                                            time_zone: 'Europe/Athens',
                                                            min_doc_count: 1,
-                                                           format: 'basic_date_time'}}
+                                                           format: 'strict_date_hour_minute_second'}}
                                },
                                sort: {'@timestamp' => {
                                    order: 'desc', unmapped_type: 'boolean'}
