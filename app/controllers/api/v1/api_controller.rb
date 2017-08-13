@@ -20,7 +20,8 @@ class Api::V1::ApiController < RocketPants::Base
 
   def logs_per_action
     cont = EsController.new
-    response = cont.actions(params[:from], params[:to], params[:query], params[:view], params[:course])
+    response = cont.query_es({from_date: params[:from], to_dat: params[:to], query: params[:query],
+                              view: params[:view], module: 'all'})
     success_response(data: response)
 
   rescue => error
@@ -29,7 +30,8 @@ class Api::V1::ApiController < RocketPants::Base
   end
 
   def actions
-    success_response( actions: %w(new enrol guest unenrol view section) )
+    success_response(actions: {users:  %w(update logout login view add),
+                               courses: %w(view quiz enrol unenrol)})
   end
 
   protected

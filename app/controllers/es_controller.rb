@@ -20,70 +20,44 @@ class EsController < ApplicationController
     @query = params[:query]
   end
 
-  def show_action
-    course = Course.find_by(id: params[:course])
-    queries = params[:query].split(',')
-    if params[:query] == 'all' || queries.count >= 2
-      data_table = []
-      keys = params[:query] == 'all' ? %w(login logout view) : queries
-      keys.each do |query|
-        data_table << Hash[query, actions(params[:from_date], params[:to_date], query, params[:view], course)]
-      end
+  def query_es(options = {})
+    data = []
+    client = Elasticsearch::Client.new(url: ENV['ES_HOST_URL'])
 
-      data_t = data_table.inject({}) do | a, e |
-        action, data = e.first
-        data.each do | x |
-          a[x[:date]] ||= Hash[keys.product([0])]
-          a[x[:date]][action] = x[:value]
-        end
-        a
-      end
-      data_t = data_t.map { | k, v | v.update(:date => k) }
-      {data: data_t}
+    search_body = {
+                  size: 0,
+                  query: {
+                    bool: { must: [
+                      { query_string: { analyze_wildcard: true, query: '*'}},
+                      { range: {
+                        '@timestamp' => { gte: options[:from_date],
+                                          lte: options[:to_date],
+                                          format: 'dd-MM-yyyy||yyyy'
+                      }}}
+                    ]}},
+                  aggregations: {
+                    sums: { date_histogram: { field: '@timestamp',
+                                              interval: options[:view],
+                                              time_zone: 'Europe/Athens',
+                                              min_doc_count: 1,
+                                              format: 'strict_date_hour_minute_second'}}
+                  },
+                  sort: {'@timestamp' => {order: 'desc', unmapped_type: 'boolean'}}
+                 }
 
+    if options[:module] == 'course'
+      search_body[:query][:bool][:must].push({match: {module: {query: 'course', type: 'phrase'}}},
+                                             {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
+                                             {match: {action: {query: options[:query], type: 'phrase'}}})
+    elsif options[:module] == 'user'
+      search_body[:query][:bool][:must].push({match: {module: {query: 'user', type: 'phrase'}}},
+                                             # {match: {course: {query: options[:user].moodle_id, type: 'phrase'}}},
+                                             {match: {action: {query: options[:query], type: 'phrase'}}})
     else
-      {data: actions(params[:from_date],
-                     params[:to_date],
-                     params[:query],
-                     params[:view],
-                     course
-      )}
+      search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
     end
 
-  end
-
-  def actions(from_date, to_date, query, view, course)
-    data = []
-    client = Elasticsearch::Client.new url: ENV['ES_HOST_URL']
-
-    response = client.search index: ENV['ES_INDEX'],
-                             body: {
-                               size: 0,
-                               query: {
-                                 bool: { must: [
-                                   # { match: { module: { query: 'course', type: 'phrase' }}},
-                                   { match: { course: { query: course.moodle_id, type: 'phrase' }}},
-                                   { match: { action: { query: query, type: 'phrase' }}},
-                                   { query_string: { analyze_wildcard: true,
-                                                   query: '*'}
-                                   },
-                                   { range: {
-                                     '@timestamp' => { gte: from_date,
-                                                       lte: to_date,
-                                                       format: 'dd-MM-yyyy||yyyy'
-                                   }}}
-                                 ]}},
-                               aggregations: {
-                                 sums: { date_histogram: { field: '@timestamp',
-                                                           interval: view,
-                                                           time_zone: 'Europe/Athens',
-                                                           min_doc_count: 1,
-                                                           format: 'strict_date_hour_minute_second'}}
-                               },
-                               sort: {'@timestamp' => {
-                                   order: 'desc', unmapped_type: 'boolean'}
-                               }
-                             }
+    response = client.search index: ENV['ES_INDEX'], body: search_body
 
     response['aggregations']['sums']['buckets'].each do |row|
       data << {date: row['key_as_string'], value: row['doc_count']}
@@ -91,6 +65,18 @@ class EsController < ApplicationController
 
     data
 
+  end
+
+  def transform_response(data_table, keys)
+    data_t = data_table.inject({}) do |a, e|
+      action, data = e.first
+      data.each do |x|
+        a[x[:date]] ||= Hash[keys.product([0])]
+        a[x[:date]][action] = x[:value]
+      end
+      a
+    end
+    data_t.map {|k, v| v.update(:date => k)}
   end
 
 end

@@ -18,9 +18,9 @@ class Api::V1::CourseController < Api::V1::ApiController
   end
 
   def logs
-    controller = ApplicationController::EsController.new
+    controller = ApplicationController::CourseController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.show_action
+    response = controller.logs
 
     if response[:type] == :error
       success_response(type: :error, message: response[:message])

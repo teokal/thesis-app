@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       get 'user', to: 'user#show'
       get 'user/courses', to: 'user#courses'
       get 'user/courses/logs', to: 'course#logs'
+      get 'admin/users/logs', to: 'admin#logs'
 
     end
   end
@@ -38,7 +39,7 @@ Rails.application.routes.draw do
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 
-  # Example resource route (maps HTTP verbs to controller actions automatically):
+  # Example resource route (maps HTTP verbs to controller query_es automatically):
   #   resources :products
 
   # Example resource route with options:

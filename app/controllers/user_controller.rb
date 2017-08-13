@@ -20,6 +20,20 @@ class UserController < ApplicationController
     end
   end
 
+  def logs
+    controller = EsController.new
+    queries = params[:query].split(',')
+    data_table = []
+    keys = params[:query] == 'all' ? %w(update logout login view add) : queries
+    keys.each do |query|
+      data_table << Hash[query, controller.query_es({from_date: params[:from_date], to_date: params[:to_date],
+                                                     query: query, view: params[:view], module: 'user'})]
+    end
+
+    data_t = controller.transform_response(data_table, keys)
+    {data: data_t}
+  end
+
   private
   def set_user
     @user = User.find_by(id: params[:id])
