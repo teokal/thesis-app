@@ -51,17 +51,32 @@ class EsController < ApplicationController
                                              {match: {action: {query: options[:query], type: 'phrase'}}})
     elsif options[:module] == 'user'
       search_body[:query][:bool][:must].push({match: {module: {query: 'user', type: 'phrase'}}},
-                                             # {match: {course: {query: options[:user].moodle_id, type: 'phrase'}}},
                                              {match: {action: {query: options[:query], type: 'phrase'}}})
+    elsif options[:module] == 'resource'
+      search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
+                                             {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
+                                             {match: {action: {query: options[:query], type: 'phrase'}}})
+      if options[:analyze_module]
+        search_body[:aggregations][:sums].merge!({aggs: {by_cmid: {terms: {field: 'cmid'}}}})
+      end
+
     else
       search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
     end
 
     response = client.search index: ENV['ES_INDEX'], body: search_body
 
-    response['aggregations']['sums']['buckets'].each do |row|
-      data << {date: row['key_as_string'], value: row['doc_count']}
+    if options[:module] == 'resource' && options[:analyze_module]
+      response['aggregations']['sums']['buckets'].each do |row|
+        data << {date: row['key_as_string'],
+                 value: row['by_cmid']['buckets'].map{|k| Hash[k['key'], k['doc_count']]}.reduce({}, :merge)}
+      end
+    else
+      response['aggregations']['sums']['buckets'].each do |row|
+        data << {date: row['key_as_string'], value: row['doc_count']}
+      end
     end
+
 
     data
 

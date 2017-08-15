@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       get 'user', to: 'user#show'
       get 'user/courses', to: 'user#courses'
       get 'user/courses/logs', to: 'course#logs'
+      get 'user/courses/modules/logs', to: 'course#module_logs'
+      get 'user/courses/modules/resources/logs', to: 'course#module_resources_logs'
       get 'admin/users/logs', to: 'admin#logs'
 
     end
