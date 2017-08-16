@@ -69,7 +69,7 @@ class EsController < ApplicationController
     if options[:module] == 'resource' && options[:analyze_module]
       response['aggregations']['sums']['buckets'].each do |row|
         data << {date: row['key_as_string'],
-                 value: row['by_cmid']['buckets'].map{|k| Hash[k['key'], k['doc_count']]}.reduce({}, :merge)}
+                 value: row['by_cmid']['buckets'].map{|k| { id: k['key'], value: k['doc_count']}}}
       end
     else
       response['aggregations']['sums']['buckets'].each do |row|
