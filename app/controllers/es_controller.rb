@@ -53,30 +53,31 @@ class EsController < ApplicationController
       search_body[:query][:bool][:must].push({match: {module: {query: 'user', type: 'phrase'}}},
                                              {match: {action: {query: options[:query], type: 'phrase'}}})
     elsif options[:module] == 'resource'
-      search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
-                                             {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
-                                             {match: {action: {query: options[:query], type: 'phrase'}}})
-      if options[:analyze_module]
+      if options[:get_resources]
+        search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
+                                               {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}})
         search_body[:aggregations][:sums].merge!({aggs: {by_cmid: {terms: {field: 'cmid'}}}})
+      else
+        search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
+                                               {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
+                                               {match: {cmid: {query: options[:module_resource], type: 'phrase'}}},
+                                               {match: {action: {query: options[:query], type: 'phrase'}}})
       end
-
     else
       search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
     end
 
     response = client.search index: ENV['ES_INDEX'], body: search_body
 
-    if options[:module] == 'resource' && options[:analyze_module]
+    if options[:module] == 'resource' && options[:get_resources]
       response['aggregations']['sums']['buckets'].each do |row|
-        data << {date: row['key_as_string'],
-                 value: row['by_cmid']['buckets'].map{|k| { id: k['key'], value: k['doc_count']}}}
+        data << row['by_cmid']['buckets'].map {|k| k['key']}
       end
     else
       response['aggregations']['sums']['buckets'].each do |row|
         data << {date: row['key_as_string'], value: row['doc_count']}
       end
     end
-
 
     data
 
