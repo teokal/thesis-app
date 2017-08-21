@@ -73,7 +73,7 @@ class CourseController < ApplicationController
                                                      get_resources: true})
     end
 
-    data_t = data_table.flatten.uniq.map{|d| {id: d, title: "Title for module #{d.to_s}"}}
+    data_t = data_table.flatten.uniq.map{|d| {id: d, title: "Title for module #{d.to_s}"}}.insert(0, {id: -1, title: 'All'})
     {data: data_t}
   end
 end

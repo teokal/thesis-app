@@ -60,8 +60,10 @@ class EsController < ApplicationController
       else
         search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
                                                {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
-                                               {match: {cmid: {query: options[:module_resource], type: 'phrase'}}},
                                                {match: {action: {query: options[:query], type: 'phrase'}}})
+        unless options[:module_resource] == '*' || options[:module_resource] == '-1'
+          search_body[:query][:bool][:must].push({match: {cmid: {query: options[:module_resource], type: 'phrase'}}})
+        end
       end
     else
       search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
