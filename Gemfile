@@ -71,3 +71,6 @@ gem 'sass-rails', '>= 3.2'
 gem 'has_secure_token'
 
 gem 'rack-cors', :require => 'rack/cors'
+gem 'tzinfo-data'
+
+gem 'moodle-api'

@@ -5,6 +5,10 @@ Rails.application.configure do
   ENV['ES_HOST_URL'] = '83.212.100.184:9200'
   ENV['ES_INDEX'] = 'moodle-*'
 
+
+  ENV['MOODLE_HOST_URL'] = 'http://83.212.105.139'
+  ENV['MOODLE_TOKEN'] = 'd1bb89587da69cd4242baddbce23c1ca'
+
   # Fabulous Devise - Login
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   # In the development environment your application's code is reloaded on

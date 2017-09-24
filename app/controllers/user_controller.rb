@@ -5,8 +5,9 @@ class UserController < ApplicationController
     User.all
   end
 
-  def show(user)
-    user.nil? ? {type: :error, message: 'User not found'} : user.as_json(only: [:id, :email])
+  def show(user_id)
+    user = Moodle::Api.core_enrol_get_users_courses({userid: user_id})
+    user.nil? ? {type: :error, message: 'User not found'} : user
   end
 
   def courses(user)
