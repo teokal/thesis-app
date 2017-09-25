@@ -4,6 +4,8 @@ require 'json'
 require 'date'
 require 'time'
 require 'hashie'
+require 'typhoeus'
+require 'typhoeus/adapters/faraday'
 require 'elasticsearch'
 require 'elasticsearch/dsl'
 include Elasticsearch::DSL
