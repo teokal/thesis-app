@@ -3,7 +3,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def show
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.show(params[:id])
+    response = controller.show
 
     if response.try(:type) == :error
       success_response(type: :error, message: response[:message])
@@ -18,7 +18,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def courses
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.courses(@user)
+    response = controller.courses
 
     if response.try(:type) == :error
       success_response(type: :error, message: response[:message])

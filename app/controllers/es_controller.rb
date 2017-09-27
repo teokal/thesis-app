@@ -24,7 +24,6 @@ class EsController < ApplicationController
 
   def query_es(options = {})
     data = []
-    client = Elasticsearch::Client.new(url: ENV['ES_HOST_URL'])
 
     search_body = {
                   size: 0,
@@ -49,7 +48,7 @@ class EsController < ApplicationController
 
     if options[:module] == 'course'
       search_body[:query][:bool][:must].push({match: {module: {query: 'course', type: 'phrase'}}},
-                                             {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
+                                             {match: {course: {query: options[:course_id], type: 'phrase'}}},
                                              {match: {action: {query: options[:query], type: 'phrase'}}})
     elsif options[:module] == 'user'
       search_body[:query][:bool][:must].push({match: {module: {query: 'user', type: 'phrase'}}},
@@ -57,11 +56,11 @@ class EsController < ApplicationController
     elsif options[:module] == 'resource'
       if options[:get_resources]
         search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
-                                               {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}})
+                                               {match: {course: {query: options[:course_id], type: 'phrase'}}})
         search_body[:aggregations][:sums].merge!({aggs: {by_cmid: {terms: {field: 'cmid'}}}})
       else
         search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
-                                               {match: {course: {query: options[:course].moodle_id, type: 'phrase'}}},
+                                               {match: {course: {query: options[:course_id], type: 'phrase'}}},
                                                {match: {action: {query: options[:query], type: 'phrase'}}})
         unless options[:module_resource] == '*' || options[:module_resource] == '-1'
           search_body[:query][:bool][:must].push({match: {cmid: {query: options[:module_resource], type: 'phrase'}}})
@@ -71,7 +70,7 @@ class EsController < ApplicationController
       search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
     end
 
-    response = client.search index: ENV['ES_INDEX'], body: search_body
+    response = ES_CLIENT.search({index: ENV['ES_INDEX'], body: search_body})
 
     if options[:module] == 'resource' && options[:get_resources]
       response['aggregations']['sums']['buckets'].each do |row|

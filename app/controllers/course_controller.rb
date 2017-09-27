@@ -1,74 +1,64 @@
 class CourseController < ApplicationController
 
-  def index
-    Course.all
+  def show
+    course = Moodle::Api.core_course_get_courses(options: {ids: Array(params[:courseid])}).first
+    course.blank? ? {type: :error, message: 'Course not found'} : course
   end
 
-  def show(id)
-    course = Moodle::Api.core_course_get_courses({}).select{|x| x if x['id'] == id.to_i}.first
-    course.nil? ? {type: :error, message: 'Course not found'} : course
-  end
-
-  def logs
-    controller = EsController.new
-    course = Course.find_by(id: params[:course])
+  def get_logs
     queries = params[:query].split(',')
     data_table = []
     keys = params[:query] == 'all' ? %w(view quiz enrol unenrol) : queries
     keys.each do |query|
-      data_table << Hash[query, controller.query_es({from_date: params[:from_date], to_date: params[:to_date],
-                                          query: query, view: params[:view], module: 'course', course: course})]
+      data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
+                                                        query: query, view: params[:view], module: 'course', course_id: params[:course]})]
     end
 
-    data_t = controller.transform_response(data_table, keys)
+    data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
   end
 
-  def module_logs
-    controller = EsController.new
-    course = Course.find_by(id: params[:course])
+  def get_course_contents
+    contents = Moodle::Api.core_course_get_contents(courseid: params[:courseid], options: [{:name => 'excludemodules', :value => 'false'}])
+    if contents.blank?
+      {type: :error, message: 'Course not found or has no content'}
+    else
+      {data: contents}
+    end
+  end
+
+  def get_course_contents_logs
     queries = params[:query].split(',')
     data_table = []
     keys = params[:query] == 'all' ? %w(view) : queries
-    keys.each do |query|
-      data_table << Hash[query, controller.query_es({from_date: params[:from_date], to_date: params[:to_date],
-                                                     query: query, view: params[:view], module: 'course', course: course})]
-    end
+    # keys.each do |query|
+    #   data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
+    #                                                     query: query, view: params[:view], module: 'course', course_id: params[:course]})]
+    # end
 
-    data_t = controller.transform_response(data_table, keys)
+    data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
   end
 
-  def module_resources_logs
-    controller = EsController.new
-    course = Course.find_by(id: params[:course])
+  def get_course_modules
+    modules = Moodle::Api.core_course_get_course_module(cmid: params[:cmid])
+    modules.blank? ? {type: :error, message: 'Course not found'} : modules
+    {data: modules}
+  end
+
+  def get_course_modules_logs
     module_resource = params[:resource]
     queries = params[:query].split(',')
     data_table = []
     keys = params[:query] == 'all' ? %w(view) : queries
-    keys.each do |query|
-      data_table << Hash[query, controller.query_es({from_date: params[:from_date], to_date: params[:to_date],
-                                                     query: query, view: params[:view], module: 'resource', course: course,
-                                                     module_resource: module_resource})]
-    end
+    # keys.each do |query|
+    #   data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
+    #                                                     query: query, view: params[:view], module: 'resource', course_id: params[:course],
+    #                                                     module_resource: module_resource})]
+    # end
 
-    data_t = controller.transform_response(data_table, keys)
+    data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
   end
 
-  def course_resources
-    controller = EsController.new
-    course = Course.find_by(id: params[:course])
-    queries = params[:query].split(',')
-    data_table = []
-    keys = params[:query] == 'all' ? %w(view) : queries
-    keys.each do |query|
-      data_table = controller.query_es({from_date: params[:from_date], to_date: params[:to_date],
-                                                     query: query, view: params[:view], module: 'resource', course: course,
-                                                     get_resources: true})
-    end
-
-    data_t = data_table.flatten.uniq.map{|d| {id: d, title: "Title for module #{d.to_s}"}}.insert(0, {id: -1, title: 'All'})
-    {data: data_t}
-  end
 end

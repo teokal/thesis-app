@@ -8,14 +8,4 @@ class User < ActiveRecord::Base
 
   has_secure_token :access_token
 
-  def add_course(course)
-    course = Course.find_by(id: course)
-    courses << course if course
-  end
-
-  def remove_course(course)
-    course = courses.find(course)
-    courses.delete(course) if course
-  end
-
 end

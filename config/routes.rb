@@ -7,28 +7,18 @@ Rails.application.routes.draw do
       get 'test', to: 'api#test'
       get 'actions', to: 'api#actions'
       get 'logs_per_action', to: 'api#logs_per_action'
-      get 'course', to: 'course#show'
-      get 'user', to: 'user#show'
-      get 'user/courses', to: 'user#courses'
-      get 'user/courses/logs', to: 'course#logs'
-      get 'user/courses/modules/logs', to: 'course#module_logs'
-      get 'user/courses/modules/resources', to: 'course#course_resources'
-      get 'user/courses/modules/resources/logs', to: 'course#module_resources_logs'
+      get 'courses', to: 'course#show'
+      get 'courses/logs', to: 'course#get_logs'
+      get 'courses/contents', to: 'course#get_course_contents'
+      get 'courses/contents/logs', to: 'course#get_course_contents_logs'
+      get 'courses/contents/modules', to: 'course#get_course_modules'
+      get 'courses/contents/modules/logs', to: 'course#get_course_modules_logs'
       get 'admin/users/logs', to: 'admin#logs'
 
     end
   end
 
   root 'application#index', as: :home_page
-  get '/user', to: 'user#index'
-
-  get '/logs', to: 'es#show', via: :get, as: :logs_page
-
-  get '/fabulous', to: 'es#show_action', via: :get, as: :fabulous_page
-
-  get '/courses', to: 'course#index'
-  get '/courses/:id', to: 'course#show'
-  get '/courses/:id/moodle', to: 'course#show_moodle'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
