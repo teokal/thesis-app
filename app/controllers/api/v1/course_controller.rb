@@ -5,7 +5,7 @@ class Api::V1::CourseController < Api::V1::ApiController
     controller.request = ActionDispatch::Request.new(request.env)
     response = controller.show
 
-    if response[:type] == :error
+    if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])
     else
       success_response(data: response)

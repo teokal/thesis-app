@@ -1,8 +1,8 @@
 class CourseController < ApplicationController
 
   def show
-    course = Moodle::Api.core_course_get_courses(options: {ids: Array(params[:courseid])}).first
-    course.blank? ? {type: :error, message: 'Course not found'} : course
+    courses = Moodle::Api.core_enrol_get_users_courses(userid: params[:userid].to_i)
+    courses.blank? ? {type: :error, message: 'No courses found'} : courses
   end
 
   def get_logs
