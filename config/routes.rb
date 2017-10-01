@@ -7,12 +7,16 @@ Rails.application.routes.draw do
       get 'test', to: 'api#test'
       get 'actions', to: 'api#actions'
       get 'logs_per_action', to: 'api#logs_per_action'
-      get 'courses', to: 'course#show'
+
+      get 'courses', to: 'user#courses'
+      get 'courses_statistics', to: 'user#statistics'
+
       get 'courses/logs', to: 'course#get_logs'
       get 'courses/contents', to: 'course#get_course_contents'
       get 'courses/contents/logs', to: 'course#get_course_contents_logs'
       get 'courses/contents/modules', to: 'course#get_course_modules'
       get 'courses/contents/modules/logs', to: 'course#get_course_modules_logs'
+
       get 'admin/users/logs', to: 'admin#logs'
 
     end

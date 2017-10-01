@@ -1,19 +1,19 @@
 class Api::V1::CourseController < Api::V1::ApiController
 
-  def show
-    controller = ApplicationController::CourseController.new
-    controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.show
+  # def show
+  #   controller = ApplicationController::CourseController.new
+  #   controller.request = ActionDispatch::Request.new(request.env)
+  #   response = controller.show
 
-    if response.class == Hash && response[:type] == :error
-      success_response(type: :error, message: response[:message])
-    else
-      success_response(data: response)
-    end
-  rescue => error
-    Rails.logger.debug(error.message)
-    error_response
-  end
+  #   if response.class == Hash && response[:type] == :error
+  #     success_response(type: :error, message: response[:message])
+  #   else
+  #     success_response(data: response)
+  #   end
+  # rescue => error
+  #   Rails.logger.debug(error.message)
+  #   error_response
+  # end
 
   def get_logs
     controller = ApplicationController::CourseController.new
