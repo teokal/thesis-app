@@ -19,12 +19,11 @@ class UserController < ApplicationController
                                                       course_id: course['id']})]
     end
 
-    # {
-    #     enrolledusercount: total_students,
-    #     viewed:
-            ES_CONTROLLER.transform_response(statistics, [key])
+    {
+        enrolledusercount: total_students,
+        viewed: ES_CONTROLLER.transform_response(statistics, [key])
 
-    # }
+    }
   end
 
   def logs
