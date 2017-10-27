@@ -13,9 +13,12 @@ Rails.application.routes.draw do
 
       get 'courses/logs', to: 'course#get_logs'
       get 'courses/contents', to: 'course#get_course_contents'
+      get 'courses/enrolled_users', to: 'course#get_enrolled_users'
       get 'courses/contents/logs', to: 'course#get_course_contents_logs'
       get 'courses/contents/modules', to: 'course#get_course_modules'
       get 'courses/contents/modules/logs', to: 'course#get_course_modules_logs'
+
+      get 'notifications', to: 'notification#notifications'
 
       get 'admin/users/logs', to: 'admin#logs'
 

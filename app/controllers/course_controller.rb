@@ -1,10 +1,5 @@
 class CourseController < ApplicationController
 
-  # def show
-  #   courses = Moodle::Api.core_enrol_get_users_courses(userid: params[:userid].to_i)
-  #   courses.blank? ? {type: :error, message: 'No courses found'} : courses
-  # end
-
   def get_logs
     queries = params[:query].split(',')
     data_table = []
@@ -59,6 +54,15 @@ class CourseController < ApplicationController
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
+  end
+
+  def enrolled_users
+    enrolled_users = Moodle::Api.core_enrol_get_enrolled_users(courseid: params[:courseid], options: [{:name => 'userfields', :value => 'fullname'}] )
+    if enrolled_users.blank?
+      {type: :error, message: 'Course not found or does not have enrolled users'}
+    else
+      {data: enrolled_users}
+    end
   end
 
 end

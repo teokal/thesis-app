@@ -1,9 +1,9 @@
-class Api::V1::CourseController < Api::V1::ApiController
+class Api::V1::NotificationController < Api::V1::ApiController
 
-  def get_logs
-    controller = ApplicationController::CourseController.new
+  def notifications
+    controller = ApplicationController::NotificationController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.get_logs
+    response = controller.notifications
 
     if response[:type] == :error
       success_response(type: :error, message: response[:message])
