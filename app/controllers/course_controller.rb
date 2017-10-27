@@ -26,10 +26,10 @@ class CourseController < ApplicationController
     queries = params[:query].split(',')
     data_table = []
     keys = params[:query] == 'all' ? %w(view) : queries
-    # keys.each do |query|
-    #   data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
-    #                                                     query: query, view: params[:view], module: 'course', course_id: params[:course]})]
-    # end
+    keys.each do |query|
+      data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
+                                                        query: query, view: params[:view], module: 'course', course_id: params[:course]})]
+    end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
@@ -46,11 +46,11 @@ class CourseController < ApplicationController
     queries = params[:query].split(',')
     data_table = []
     keys = params[:query] == 'all' ? %w(view) : queries
-    # keys.each do |query|
-    #   data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
-    #                                                     query: query, view: params[:view], module: 'resource', course_id: params[:course],
-    #                                                     module_resource: module_resource})]
-    # end
+    keys.each do |query|
+      data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
+                                                        query: query, view: params[:view], module: 'resource', course_id: params[:course],
+                                                        module_resource: module_resource})]
+    end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
     {data: data_t}
