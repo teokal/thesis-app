@@ -13,4 +13,10 @@ class ApplicationController < ActionController::Base
 
   end
 
+  def generate_csrf_token
+    app_controller = ActionController::Base::ApplicationController.new
+    app_controller.request = ActionDispatch::Request.new({})
+    app_controller.send(:form_authenticity_token)
+  end
+
 end

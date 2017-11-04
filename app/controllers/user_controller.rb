@@ -1,8 +1,12 @@
 class UserController < ApplicationController
+  def sign_in
+    Rails.logger.debug(params.as_json)
+  end
 
   def info(userids = nil)
     user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: userids.nil? ? [params[:userid].to_i] : Array(userids))
     user.blank? ? {type: :error, message: 'User not found'} : user
+    binding.pry
   end
 
   def courses
@@ -46,5 +50,16 @@ class UserController < ApplicationController
     data_t = es_controller.transform_response(data_table, keys)
     {data: data_t}
   end
+
+  def logout
+    begin
+      @user.logout({destroy: true, token: params[:token]})
+      success_response
+    rescue => error
+      Rails.logger.error('[ERROR] API | Users | logout: ' + error.message)
+      error_response
+    end
+  end
+
 
 end

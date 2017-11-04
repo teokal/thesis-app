@@ -1,5 +1,9 @@
 class Api::V1::UserController < Api::V1::ApiController
 
+  def sign_in
+    Rails.logger.debug(params.as_json)
+  end
+  
   def info
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
