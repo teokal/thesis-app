@@ -25,18 +25,10 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use unicorn as the app server
-# gem 'unicorn'
-
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
-
-# Use debugger
-# gem 'debugger', group: [:development, :test]
-
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin]
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
+gem 'tzinfo-data'
 
 # ElasticSearch
 gem 'elasticsearch'
@@ -44,7 +36,6 @@ gem 'elasticsearch-api', git: 'https://github.com/elasticsearch/elasticsearch-ru
 gem 'elasticsearch-dsl', git: 'https://github.com/elasticsearch/elasticsearch-ruby.git'
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
-
 
 # fabulous devise
 gem 'bcrypt', git: 'https://github.com/codahale/bcrypt-ruby.git', require: 'bcrypt'
@@ -58,11 +49,6 @@ gem 'rocket_pants', '~> 1.0'
 gem 'kaminari'
 gem 'pry'
 
-# fabulous charts - from github.com/PerfectlyNormal/highcharts-rails
-gem 'highcharts-rails'
-
-# fabulous ruby charts
-gem 'chartkick'
 gem 'groupdate'
 
 gem 'bootstrap-sass', '~> 3.3.6'
@@ -71,6 +57,5 @@ gem 'sass-rails', '>= 3.2'
 gem 'has_secure_token'
 
 gem 'rack-cors', :require => 'rack/cors'
-gem 'tzinfo-data'
 
 gem 'moodle-api'

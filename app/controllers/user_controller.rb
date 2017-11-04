@@ -1,7 +1,7 @@
 class UserController < ApplicationController
 
-  def info
-    user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: [params[:userid].to_i])
+  def info(userids = nil)
+    user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: userids.nil? ? [params[:userid].to_i] : Array(userids))
     user.blank? ? {type: :error, message: 'User not found'} : user
   end
 

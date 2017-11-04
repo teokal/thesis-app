@@ -57,11 +57,31 @@ class CourseController < ApplicationController
   end
 
   def enrolled_users
-    enrolled_users = Moodle::Api.core_enrol_get_enrolled_users(courseid: params[:courseid], options: [{:name => 'userfields', :value => 'fullname'}] )
+    enrolled_users = Moodle::Api.core_enrol_get_enrolled_users(courseid: params[:courseid], options: [{:name => 'userfields', :value => 'fullname'}])
     if enrolled_users.blank?
       {type: :error, message: 'Course not found or does not have enrolled users'}
     else
       {data: enrolled_users}
+    end
+  end
+
+  def user_groups(course_id = nil)
+    user_groups = Moodle::Api.core_group_get_course_groups(courseid: params[:courseid] || course_id)
+    if user_groups.blank?
+      {type: :error, message: 'Course not found or does not have user groups'}
+    else
+      {data: user_groups}
+    end
+  end
+
+  def group_members(group_ids = nil)
+    group_members = Moodle::Api.core_group_get_group_members(groupids: [params[:groupid]] || Array(group_ids))
+    if group_members.blank?
+      {type: :error, message: 'Group member not found or does not have members'}
+    else
+      controller = ApplicationController::UserController.new
+      users = controller.info(group_members.first['userids'])
+      {data: users}
     end
   end
 
