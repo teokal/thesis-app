@@ -8,6 +8,7 @@ Rails.application.configure do
 
   ENV['MOODLE_HOST_URL'] = 'http://83.212.105.139'
   ENV['MOODLE_TOKEN'] = 'd1bb89587da69cd4242baddbce23c1ca'
+  ENV['MOODLE_SERVICE_SHORT'] = 'laws'
 
   # Fabulous Devise - Login
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }

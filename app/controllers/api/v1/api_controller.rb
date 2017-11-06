@@ -1,6 +1,4 @@
 class Api::V1::ApiController < RocketPants::Base
-  before_action :authenticate_access
-
   after_filter :set_access
 
   RocketPants::Base.version 1

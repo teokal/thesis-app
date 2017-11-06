@@ -1,7 +1,4 @@
 class UserController < ApplicationController
-  def sign_in
-    Rails.logger.debug(params.as_json)
-  end
 
   def info(userids = nil)
     user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: userids.nil? ? [params[:userid].to_i] : Array(userids))
