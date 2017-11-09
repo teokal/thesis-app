@@ -1,5 +1,4 @@
 class Api::V1::NoteController < Api::V1::ApiController
-  before_filter :authenticate_user!
 
   def notes
     controller = ApplicationController::NoteController.new

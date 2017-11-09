@@ -1,5 +1,4 @@
 class Api::V1::NotificationController < Api::V1::ApiController
-  before_filter :authenticate_user!
 
   def notifications
     controller = ApplicationController::NotificationController.new

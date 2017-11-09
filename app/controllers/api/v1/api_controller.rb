@@ -1,20 +1,22 @@
 class Api::V1::ApiController < RocketPants::Base
+  before_filter :authenticate_access, except: [:sign_in]
   after_filter :set_access
 
   RocketPants::Base.version 1
 
   def test
     id = params[:id].blank? ? 0 : params[:id]
-    data = { id: id,
-             message: "Test #{id}",
-             authorized: @user_access }
+    data = {
+        id: id,
+        message: "Test #{id}",
+        authorized: @user_access
+    }
     success_response(data: data)
 
   rescue => error
     Rails.logger.error(error.message)
     error_response(type: :internal_error)
   end
-
 
   def logs_per_action
     cont = EsController.new
@@ -28,11 +30,9 @@ class Api::V1::ApiController < RocketPants::Base
   end
 
   def actions
-    success_response(actions: {users:  %w(update logout login view add),
+    success_response(actions: {users: %w(update logout login view add),
                                courses: %w(view quiz enrol unenrol)})
   end
-
-  protected
 
   def authenticate_access
     Rails.logger.info("REMOTE_ADDR: #{request.env['REMOTE_ADDR']}")
@@ -46,6 +46,7 @@ class Api::V1::ApiController < RocketPants::Base
     end
   end
 
+  protected
   def authenticate_entity_access
     authenticate_with_http_token do |access_token, options|
       @user = User.find_by(access_token: access_token)

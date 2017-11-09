@@ -14,8 +14,8 @@ class EsController < ApplicationController
 
   def show
     @time_values = [
-      ['1 month', 1], ['2 months', 2], ['6 months', 6],
-      ['1 year', 12], ['2 years', 24], ['since 2007', 120]
+        ['1 month', 1], ['2 months', 2], ['6 months', 6],
+        ['1 year', 12], ['2 years', 24], ['since 2007', 120]
     ]
     @from_date = params[:from_date] ||= 12
     @to_date = params[:to_date] ||= Time.now.to_i
@@ -26,25 +26,25 @@ class EsController < ApplicationController
     data = []
 
     search_body = {
-                  size: 0,
-                  query: {
-                    bool: { must: [
-                      { query_string: { analyze_wildcard: true, query: '*'}},
-                      { range: {
-                        '@timestamp' => { gte: options[:from_date],
-                                          lte: options[:to_date],
-                                          format: 'dd-MM-yyyy||yyyy'
-                      }}}
-                    ]}},
-                  aggregations: {
-                    sums: { date_histogram: { field: '@timestamp',
-                                              interval: options[:view],
-                                              time_zone: 'Europe/Athens',
-                                              min_doc_count: 1,
-                                              format: 'strict_date_hour_minute_second'}}
-                  },
-                  sort: {'@timestamp' => {order: 'desc', unmapped_type: 'boolean'}}
-                 }
+        size: 0,
+        query: {
+            bool: {must: [
+                {query_string: {analyze_wildcard: true, query: '*'}},
+                {range: {
+                    '@timestamp' => {gte: options[:from_date],
+                                     lte: options[:to_date],
+                                     format: 'dd-MM-yyyy||yyyy'
+                    }}}
+            ]}},
+        aggregations: {
+            sums: {date_histogram: {field: '@timestamp',
+                                    interval: options[:view],
+                                    time_zone: 'Europe/Athens',
+                                    min_doc_count: 1,
+                                    format: 'strict_date_hour_minute_second'}}
+        },
+        sort: {'@timestamp' => {order: 'desc', unmapped_type: 'boolean'}}
+    }
 
     if options[:module] == 'course'
       search_body[:query][:bool][:must].push({match: {module: {query: 'course', type: 'phrase'}}},

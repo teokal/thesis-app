@@ -1,5 +1,4 @@
 class Api::V1::CourseController < Api::V1::ApiController
-  before_filter :authenticate_user!
 
   def get_logs
     controller = ApplicationController::CourseController.new
