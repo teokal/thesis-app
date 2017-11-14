@@ -57,7 +57,8 @@ class Api::V1::ApiController < RocketPants::Base
 
   def render_unauthorized
     self.headers['WWW-Authenticate'] = 'Token realm="Application"'
-    error_response(status: :error, type: :unauthorized, message: 'Bad Token')
+    self.status = :unauthorized
+    expose(status: :unauthorized, message: 'Bad Token')
   end
 
   def set_access
