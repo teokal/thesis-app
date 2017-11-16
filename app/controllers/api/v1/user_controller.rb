@@ -17,7 +17,7 @@ class Api::V1::UserController < Api::V1::ApiController
                        access_token: SecureRandom.hex(30),
                        moodle_token: token,
                        moodle_user_id: user_info['userid'],
-                       expires_at: 5.days.from_now,
+                       expires_at: 1.minute.from_now,
                        picture_url: user_info['userpictureurl']
                    })
       success_response(
