@@ -8,7 +8,11 @@ class Api::V1::UserController < Api::V1::ApiController
     if token.class == String
       @user = User.find_by(username: username)
       user_info = get_moodle_user_info(token)
-      @user = User.create(username: username) unless @user
+
+      if @user.blank?
+        @user = User.create(username: username, email: '')
+        @user.save(validate: false)
+      end
 
       @user.update({
                        first_name: user_info['firstname'],
@@ -17,9 +21,10 @@ class Api::V1::UserController < Api::V1::ApiController
                        access_token: SecureRandom.hex(30),
                        moodle_token: token,
                        moodle_user_id: user_info['userid'],
-                       expires_at: 1.minute.from_now,
+                       expires_at: 100.minute.from_now,
                        picture_url: user_info['userpictureurl']
                    })
+
       success_response(
           user: @user.as_json({
                                   only: [:username, :first_name, :last_name,
