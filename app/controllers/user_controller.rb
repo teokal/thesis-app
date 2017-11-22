@@ -6,12 +6,12 @@ class UserController < ApplicationController
   end
 
   def courses
-    courses = Moodle::Api.core_enrol_get_users_courses(userid: params[:userid].to_i)
+    courses = Moodle::Api.core_enrol_get_users_courses(userid: @user.moodle_user_id)
     courses.blank? ? {type: :error, message: 'No courses found'} : courses
   end
 
   def statistics
-    courses = Moodle::Api.core_enrol_get_users_courses(userid: params[:userid].to_i)
+    courses = Moodle::Api.core_enrol_get_users_courses(userid: @user.moodle_user_id)
     events = Moodle::Api.core_calendar_get_calendar_events({})
 
     total_students = 0

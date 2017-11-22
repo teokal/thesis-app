@@ -19,11 +19,11 @@ task import_moodle_categories: :environment do
           category.theme = moodle_category.theme
         end
       rescue
-        Rails.logger.debugger("Couldn't save #{moodle_category.id}")
+        Rails.logger.debug("Couldn't save #{moodle_category.id}")
         next
       end
     end
   rescue
-    Rails.logger.debugger("Couldn't get categories from Moodle Database.")
+    Rails.logger.debug('Couldn\'t get categories from Moodle Database.')
   end
 end

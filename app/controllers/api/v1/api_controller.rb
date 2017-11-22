@@ -50,6 +50,7 @@ class Api::V1::ApiController < RocketPants::Base
   def authenticate_entity_access
     authenticate_with_http_token do |access_token, options|
       @user = User.find_by('access_token = (?) AND ? < expires_at', access_token, Time.now)
+      Devise::TestHelpers.sign_in @user
       return true unless @user.nil?
       return false
     end

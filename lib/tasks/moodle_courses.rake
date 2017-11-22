@@ -22,11 +22,11 @@ task import_moodle_courses: :environment do
           course.timemodified = moodle_course.timemodified
         end
       rescue
-        Rails.logger.debugger("Couldn't save #{moodle_course.id}")
+        Rails.logger.debug("Couldn't save #{moodle_course.id}")
         next
       end
     end
   rescue
-    Rails.logger.debugger("Couldn't get courses from Moodle Database.")
+    Rails.logger.debug('Couldn\'t get courses from Moodle Database.')
   end
 end
