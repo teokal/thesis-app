@@ -1,6 +1,6 @@
 class Api::V1::UserController < Api::V1::ApiController
 
-  def sign_in_s
+  def sign_in
     username = params[:username]
     password = params[:password]
 
