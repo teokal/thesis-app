@@ -6,15 +6,17 @@ include Elasticsearch::DSL
 
 task :import_logs_from_moodle => :environment do |t, args|
   begin
-    LOGS_CHUNK = 100
+    LOGS_CHUNK = 500
     RETRIES = 3
 
     connection = ActiveRecord::Base.establish_connection(MoodleDatabase::DB_MOODLE).connection
+    # find last imported log
     max_id = ES_CLIENT.search(
         {index: ENV['ES_INDEX'], body: {aggs: {max_id: {max: {field: 'id'}}}, 'size': 0}}
     )['aggregations']['max_id']['value'].to_i
 
-    logs = connection.execute("select * from `mdl_logstore_standard_log` where id > #{max_id};")
+    # query new logs from moodle database table
+    logs = connection.execute("select * from `mdl_logstore_standard_log` where `id` > #{max_id};")
     fields = logs.fields
 
     logs.each_slice(LOGS_CHUNK) do |logs_chunk|
@@ -22,11 +24,12 @@ task :import_logs_from_moodle => :environment do |t, args|
         tries ||= RETRIES
         data = []
 
+        # prepare data for importing; need key: value pairs
         logs_chunk.map {|log|
           data << {index: {_index: ENV['ES_INDEX'], _type: 'log'}}
           data << Hash[fields.zip(log)].symbolize_keys
         }
-
+        puts "Sending ids #{logs_chunk.map(&:first).minmax.join(' - ')} to Elasticsearch."
         ES_CLIENT.bulk(body: data)
       rescue
         retry unless (tries -= 1).zero?

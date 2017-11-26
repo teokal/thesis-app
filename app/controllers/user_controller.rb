@@ -1,17 +1,28 @@
 class UserController < ApplicationController
 
-  def info(userids = nil)
-    user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: userids.nil? ? [params[:userid].to_i] : Array(userids))
+  def info(user = nil, user_ids = nil)
+    if user_ids.nil?
+      array_user_ids = Array(user.moodle_user_id)
+    else
+      # [1,2,3,4]
+      if user_ids.class != String && user_ids.all? {|i| i.is_a?(Integer)}
+        array_user_ids = user_ids
+      else # "1" -> [1]|| "1,2,3,4" -> [1,2,3,4]
+        array_user_ids = user_ids.split(',').map(&:to_i)
+      end
+    end
+
+    user = Moodle::Api.core_user_get_users_by_field(field: 'id', values: array_user_ids)
     user.blank? ? {type: :error, message: 'User not found'} : user
   end
 
-  def courses
-    courses = Moodle::Api.core_enrol_get_users_courses(userid: @user.moodle_user_id)
+  def courses(user)
+    courses = Moodle::Api.core_enrol_get_users_courses(userid: user.moodle_user_id)
     courses.blank? ? {type: :error, message: 'No courses found'} : courses
   end
 
-  def statistics
-    courses = Moodle::Api.core_enrol_get_users_courses(userid: @user.moodle_user_id)
+  def statistics(user)
+    courses = Moodle::Api.core_enrol_get_users_courses(userid: user.moodle_user_id)
     events = Moodle::Api.core_calendar_get_calendar_events({})
 
     total_students = 0
@@ -56,6 +67,5 @@ class UserController < ApplicationController
       error_response
     end
   end
-
 
 end

@@ -59,7 +59,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def info
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.info
+    response = controller.info(@user, params[:userid])
 
     if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])
@@ -74,7 +74,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def courses
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.courses
+    response = controller.courses(@user)
 
     if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])
@@ -89,7 +89,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def statistics
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.statistics
+    response = controller.statistics(@user)
 
     if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])

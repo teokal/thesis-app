@@ -80,7 +80,7 @@ class CourseController < ApplicationController
       {type: :error, message: 'Group member not found or does not have members'}
     else
       controller = ApplicationController::UserController.new
-      users = controller.info(group_members.first['userids'])
+      users = controller.info(nil, group_members.first['userids'])
       {data: users}
     end
   end
