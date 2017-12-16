@@ -23,7 +23,6 @@ class UserController < ApplicationController
 
   def statistics(user)
     courses = Moodle::Api.core_enrol_get_users_courses(userid: user.moodle_user_id)
-    events = Moodle::Api.core_calendar_get_calendar_events({})
 
     total_students = 0
     statistics = []
@@ -38,8 +37,7 @@ class UserController < ApplicationController
 
     {
         enrolledusercount: total_students,
-        viewed: ES_CONTROLLER.transform_response(statistics, [key]),
-        events: events['events']
+        viewed: ES_CONTROLLER.transform_response(statistics, [key])
     }
   end
 

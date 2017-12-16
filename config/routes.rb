@@ -30,6 +30,8 @@ Rails.application.routes.draw do
 
       get 'user', to: 'user#info'
 
+      get 'events', to: 'event#get_events'
+
       get 'admin/users/logs', to: 'admin#logs'
 
     end
