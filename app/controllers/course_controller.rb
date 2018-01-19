@@ -14,11 +14,52 @@ class CourseController < ApplicationController
   end
 
   def get_course_contents
-    contents = Moodle::Api.core_course_get_contents(courseid: params[:courseid], options: [{:name => 'excludemodules', :value => 'false'}])
-    if contents.blank?
+    sections = Moodle::Api.core_course_get_contents(courseid: params[:courseid], options: [{:name => 'excludemodules', :value => 'false'}])
+    if sections.blank?
       {type: :error, message: 'Course not found or has no content'}
     else
-      {data: contents}
+      course_total_modules_contents = 0
+
+      sections.each_with_index {|section, s_i|
+        if sections[s_i]['modules'].length != 0
+
+          section['modules'].each_with_index {|module_, m_i|
+            if !module_['contents'].nil? && module_['contents'].length != 0
+              course_total_modules_contents += module_['contents'].length
+              sections[s_i]['modules'][m_i]['contents'] = {
+                  data: module_['contents'],
+                  statistics: {
+                      counter: module_['contents'].length
+                  }
+              }
+            else
+              sections[s_i]['modules'][m_i]['contents'] = {
+                  data: [],
+                  statistics: {
+                      counter: 0
+                  }
+              }
+            end
+          }
+
+          sections[s_i]['modules'] = {
+              data: sections[s_i]['modules'],
+              statistics: {
+                  counter: sections[s_i]['modules'].map {|m| m['contents'][:statistics][:counter]}.inject(0, :+)
+              }
+          }
+
+        else
+          sections[s_i]['modules'] = {data: [], statistics: {counter: 0}}
+        end
+      }
+
+      {
+          data: {
+              contents: sections,
+              total_files: course_total_modules_contents
+          }
+      }
     end
   end
 
