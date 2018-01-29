@@ -28,11 +28,16 @@ class UserController < ApplicationController
     statistics = []
     key = 'view'
 
+    from_date = params[:from_date].blank? ? '2015' : params[:from_date]
+    to_date = params[:to_date].blank? ? Date.today.year : params[:to_date]
+    view = params[:view].blank? ? 'day' : params[:view]
+
     courses.each do |course|
       total_students += course['enrolledusercount']
-      statistics << Hash[key, ES_CONTROLLER.query_es({from_date: '2015', to_date: Date.today.year,
-                                                      query: key, view: 'day', module: 'course',
-                                                      course_id: course['id']})]
+      es_stats = ES_CONTROLLER.query_es({from_date: from_date, to_date: to_date,
+                                          query: key, view: view, module: 'course',
+                                          course_id: course['id']})
+      statistics << Hash[key, es_stats]
     end
 
     {
