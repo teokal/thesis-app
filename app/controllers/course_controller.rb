@@ -18,25 +18,29 @@ class CourseController < ApplicationController
     if sections.blank?
       {type: :error, message: 'Course not found or has no content'}
     else
-      course_total_modules_contents = 0
+      course_total_modules_contents_counter = 0
+      course_total_modules_contents = []
 
       sections.each_with_index {|section, s_i|
         if sections[s_i]['modules'].length != 0
 
           section['modules'].each_with_index {|module_, m_i|
             if !module_['contents'].nil? && module_['contents'].length != 0
-              course_total_modules_contents += module_['contents'].length
+              course_total_modules_contents_counter += module_['contents'].length
+              course_total_modules_contents << module_['contents']
               sections[s_i]['modules'][m_i]['contents'] = {
                   data: module_['contents'],
                   statistics: {
-                      counter: module_['contents'].length
+                      counter: module_['contents'].length,
+                      filetypes: calc_perc_from_filenames(module_['contents'])
                   }
               }
             else
               sections[s_i]['modules'][m_i]['contents'] = {
                   data: [],
                   statistics: {
-                      counter: 0
+                      counter: 0,
+                      filetypes: []
                   }
               }
             end
@@ -45,19 +49,24 @@ class CourseController < ApplicationController
           sections[s_i]['modules'] = {
               data: sections[s_i]['modules'],
               statistics: {
-                  counter: sections[s_i]['modules'].map {|m| m['contents'][:statistics][:counter]}.inject(0, :+)
+                  counter: sections[s_i]['modules'].map {|m| m['contents'][:statistics][:counter]}.inject(0, :+),
+                  filetypes: calc_perc_from_filenames(sections[s_i]['modules'].map {|m| m['contents'][:data]})
               }
           }
 
         else
-          sections[s_i]['modules'] = {data: [], statistics: {counter: 0}}
+          sections[s_i]['modules'] = {data: [], statistics: {
+              counter: 0,
+              filetypes: []
+          }}
         end
       }
 
       {
           data: {
               contents: sections,
-              total_files: course_total_modules_contents
+              total_files: course_total_modules_contents_counter,
+              filetypes: calc_perc_from_filenames(course_total_modules_contents)
           }
       }
     end
@@ -126,4 +135,20 @@ class CourseController < ApplicationController
     end
   end
 
+  def calc_perc_from_filenames(contents = nil)
+    begin
+      if !contents.blank?
+        contents
+            .flatten
+            .map {|c| File.extname(c['filename']).delete('.')}
+            .compact
+            .group_by {|x| x}
+            .map {|k, v| {type: k.upcase + ' Files', counter: v.count}}
+      else
+        []
+      end
+    rescue => e
+      []
+    end
+  end
 end
