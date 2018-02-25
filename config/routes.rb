@@ -23,6 +23,8 @@ Rails.application.routes.draw do
       get 'courses/contents/logs', to: 'course#get_course_contents_logs'
       get 'courses/contents/modules', to: 'course#get_course_modules'
       get 'courses/contents/modules/logs', to: 'course#get_course_modules_logs'
+      get 'courses/scorm', to: 'course#get_scorm_by_course'
+      get 'courses/risk_analysis', to: 'course#get_risk_analysis'
 
       get 'notifications', to: 'notification#notifications'
 
