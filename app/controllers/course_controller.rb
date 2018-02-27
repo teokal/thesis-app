@@ -135,30 +135,6 @@ class CourseController < ApplicationController
     end
   end
 
-  def get_scorm_by_course
-    # scorm = Moodle::Api.mod_scorm_get_scorm_scoes(scormid: params[:scormid].to_i)    
-    # scorm = Moodle::Api.mod_scorm_get_scorms_by_courses(courseids: Array(params[:courseid].to_i))
-    # scorm = Moodle::Api.mod_scorm_get_scorm_user_data(scormid: params[:courseid].to_i, attempt: 0)
-    scorm = Moodle::Api.mod_scorm_get_scorm_sco_tracks(scoid: params[:scoid].to_i, userid:params[:userid].to_i, attempt: params[:attempt].to_i)
-    
-    if scorm.blank?
-      {type: :error, message: 'Course not found or does not have scorm'}
-    else
-      {data: scorm}
-    end
-  end
-
-  def get_risk_analysis
-    {data: [
-      {userid: 4, fullname: 'Nikos Vas', in_danger: true},
-      {userid: 5, fullname: 'Chris Pol', in_danger: false},
-      {userid: 6, fullname: 'Eda Boj', in_danger: true},
-      {userid: 7, fullname: 'Dim Sap', in_danger: true},
-      {userid: 9, fullname: 'Teo Kal', in_danger: false}
-      ]
-    }
-  end
-
   def calc_perc_from_filenames(contents = nil)
     begin
       if !contents.blank?
