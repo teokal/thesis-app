@@ -30,8 +30,8 @@ class Api::V1::ApiController < RocketPants::Base
   end
 
   def actions
-    success_response(actions: {users: %w(update logout login view add),
-                               courses: %w(view quiz enrol unenrol)})
+    success_response(actions: {users: %w(),
+                               courses: %w(viewed quiz)})
   end
 
   def authenticate_access

@@ -26,20 +26,19 @@ class UserController < ApplicationController
 
     total_students = 0
     statistics = []
-    key = 'view'
+    key = 'viewed'
 
-    from_date = params[:from_date].blank? ? '2015' : params[:from_date]
-    to_date = params[:to_date].blank? ? Date.today.year : params[:to_date]
-    view = params[:view].blank? ? 'day' : params[:view]
+    from_date = params[:from_date].blank? ? DateTime.now.prev_year.strftime("%d-%m-%Y") : params[:from_date]
+    to_date = params[:to_date].blank? ? DateTime.now.strftime("%d-%m-%Y") : params[:to_date]
+    view = params[:view].blank? ? 'month' : params[:view]
 
-    courses.each do |course|
-      total_students += course['enrolledusercount']
-      es_stats = ES_CONTROLLER.query_es({from_date: from_date, to_date: to_date,
-                                          query: key, view: view, module: 'course',
-                                          course_id: course['id']})
-      statistics << Hash[key, es_stats]
-    end
-
+    total_students = courses.map{|course| course['enrolledusercount']}.inject(0){|sum,x| sum + x }
+    
+    es_stats = ES_CONTROLLER.query_es({from_date: from_date, to_date: to_date,
+                                        query: key, view: view, module: 'course',
+                                        course_id: courses.map{|course| course['id']}})
+    
+    statistics << Hash[key, es_stats]
     {
         enrolledusercount: total_students,
         viewed: ES_CONTROLLER.transform_response(statistics, [key])
@@ -47,8 +46,6 @@ class UserController < ApplicationController
   end
 
   def logs
-    es_controller = EsController.new
-
     queries = params[:query].split(',')
     data_table = []
     keys = ((params[:query] == 'all') ? %w(update logout login view add) : queries)
@@ -57,8 +54,7 @@ class UserController < ApplicationController
                                                         query: query, view: params[:view], module: 'user'})]
     end
 
-    data_t = es_controller.transform_response(data_table, keys)
-    {data: data_t}
+    {data: ES_CONTROLLER.transform_response(data_table, keys)}
   end
 
   def logout

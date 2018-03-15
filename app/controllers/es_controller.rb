@@ -25,50 +25,49 @@ class EsController < ApplicationController
   def query_es(options = {})
     data = []
 
+    if options[:from_date].length == 3        #now
+      from_date_tmp = DateTime.now
+    elsif options[:from_date].length == 4     #year
+      from_date_tmp = DateTime.new(options[:from_date].to_i)
+    else                                      #full-date
+      from_date_tmp = DateTime.strptime(options[:from_date], "%d-%m-%Y")
+    end
+
+    if options[:to_date].length == 3          #now
+      to_date_tmp = DateTime.now
+    elsif options[:to_date].length == 4       #year
+      to_date_tmp = DateTime.new(options[:to_date].to_i)
+    else                                      #full-date
+      to_date_tmp = DateTime.strptime(options[:to_date], "%d-%m-%Y")
+    end
+    
+    from_date = from_date_tmp.beginning_of_day.strftime('%Q').to_i
+    to_date = to_date_tmp.end_of_day.strftime('%Q').to_i
+    
     search_body = {
-        size: 0,
-        query: {
-            bool: {must: [
-                {query_string: {analyze_wildcard: true, query: '*'}},
-                {range: {
-                    '@timestamp' => {gte: options[:from_date],
-                                     lte: options[:to_date],
-                                     format: 'dd-MM-yyyy||yyyy'
-                    }}}
-            ]}},
-        aggregations: {
-            sums: {date_histogram: {field: '@timestamp',
-                                    interval: options[:view],
-                                    time_zone: 'Europe/Athens',
-                                    min_doc_count: 1,
-                                    format: 'strict_date_hour_minute_second'}}
-        },
-        sort: {'@timestamp' => {order: 'desc', unmapped_type: 'boolean'}}
+      size: 0,
+      query: {bool: {}},
+      aggregations: {
+        sums: {date_histogram: {field: 'timecreated',
+          interval: options[:view],
+          time_zone: 'Europe/Athens',
+          min_doc_count: 1,
+          format: 'strict_date_hour_minute_second'}}
+      },
+      sort: {'timecreated' => {order: 'desc', unmapped_type: 'boolean'}}
     }
 
-    if options[:module] == 'course'
-      search_body[:query][:bool][:must].push({match: {module: {query: 'course', type: 'phrase'}}},
-                                             {match: {course: {query: options[:course_id], type: 'phrase'}}},
-                                             {match: {action: {query: options[:query], type: 'phrase'}}})
-    elsif options[:module] == 'user'
-      search_body[:query][:bool][:must].push({match: {module: {query: 'user', type: 'phrase'}}},
-                                             {match: {action: {query: options[:query], type: 'phrase'}}})
-    elsif options[:module] == 'resource'
-      if options[:get_resources]
-        search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
-                                               {match: {course: {query: options[:course_id], type: 'phrase'}}})
-        search_body[:aggregations][:sums].merge!({aggs: {by_cmid: {terms: {field: 'cmid'}}}})
-      else
-        search_body[:query][:bool][:must].push({match: {module: {query: 'resource', type: 'phrase'}}},
-                                               {match: {course: {query: options[:course_id], type: 'phrase'}}},
-                                               {match: {action: {query: options[:query], type: 'phrase'}}})
-        unless options[:module_resource] == '*' || options[:module_resource] == '-1'
-          search_body[:query][:bool][:must].push({match: {cmid: {query: options[:module_resource], type: 'phrase'}}})
-        end
-      end
-    else
-      search_body[:query][:bool][:must].push({match: {action: {query: options[:query], type: 'phrase'}}})
-    end
+    search_body[:query][:bool][:must] = [
+      {query_string: {analyze_wildcard: true, query: '*'}},
+      {range: {'timecreated' => {gte: from_date, lte: to_date, format: 'epoch_millis'}}},
+      {match: {target: {query: 'course'}}},
+      {match: {action: {query: options[:query]}}}
+    ]
+    
+    search_body[:query][:bool][:must_not] = {match: {component: {query: 'report_*'}}}
+
+    search_body[:query][:bool][:should] = Array(options[:course_id])
+                                                .map{|id| {match: {courseid: id.to_i}}}
 
     response = ES_CLIENT.search({index: ENV['ES_INDEX'], body: search_body})
 
