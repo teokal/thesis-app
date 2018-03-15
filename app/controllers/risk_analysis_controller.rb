@@ -46,7 +46,7 @@ class RiskAnalysisController < ApplicationController
         response_data << {
           id: user,
           name: "#{enrolled_students[user]}",
-          analysis: result
+          analysis: result.map{|k, v| {id: k, value: v}}
         }
 
       }
