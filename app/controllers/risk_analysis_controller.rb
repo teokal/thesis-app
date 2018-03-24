@@ -61,4 +61,8 @@ class RiskAnalysisController < ApplicationController
     end
   end
 
+  def transform_risk_analysis_data
+    {data: JSON.parse(params[:data])}
+  end
+
 end
