@@ -68,6 +68,8 @@ class EsController < ApplicationController
 
     search_body[:query][:bool][:should] = Array(options[:course_id])
                                                 .map{|id| {match: {courseid: id.to_i}}}
+                              
+    search_body[:query][:bool][:minimum_should_match] = 1
 
     response = ES_CLIENT.search({index: ENV['ES_INDEX'], body: search_body})
 

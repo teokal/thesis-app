@@ -3,14 +3,13 @@ Rails.application.configure do
 
   ENV['MOODLE_DB_PREFIX'] = 'mdl_'
   ENV['ES_HOST_URL'] = '83.212.100.184:9200'
-  ENV['ES_INDEX'] = 'moodle-*'
+  ENV['ES_INDEX'] = 'moodle_logs'
 
 
   ENV['MOODLE_HOST_URL'] = 'http://83.212.105.139'
   ENV['MOODLE_TOKEN'] = 'd1bb89587da69cd4242baddbce23c1ca'
   ENV['MOODLE_SERVICE_SHORT'] = 'laws'
 
-  # Fabulous Devise - Login
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
@@ -45,4 +44,6 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  config.debug_exception_response_format = :api
 end
