@@ -33,11 +33,11 @@ class UserController < ApplicationController
     view = params[:view].blank? ? 'month' : params[:view]
 
     total_students = courses.map{|course| course['enrolledusercount']}.inject(0){|sum,x| sum + x }
-    
+
     es_stats = ES_CONTROLLER.query_es({from_date: from_date, to_date: to_date,
                                         query: key, view: view, module: 'course',
                                         course_id: courses.map{|course| course['id']}})
-    
+
     statistics << Hash[key, es_stats]
     {
         enrolledusercount: total_students,
@@ -63,6 +63,33 @@ class UserController < ApplicationController
       success_response
     rescue => error
       Rails.logger.error('[ERROR] API | Users | logout: ' + error.message)
+      error_response
+    end
+  end
+
+  def send_message(user)
+    begin
+      if params[:message].length == 0
+        return {type: :error, message: 'Message is empty.'}
+      else
+        if params[:student_ids].count >= 1
+          Moodle::Api.configuration.token = user.moodle_token
+          result = Moodle::Api.core_message_send_instant_messages(
+            messages: params[:student_ids].map { |id| 
+              {
+                touserid: Integer(id),
+                text: params[:message],
+                textformat: 1
+              }
+            })
+            Moodle::Api.configuration.token = ENV['MOODLE_TOKEN']
+          return "#{'Message'.pluralize(params[:student_ids].count)} sent."
+        else
+          return {type: :error, message: 'No students were selected to send this message.'}
+        end
+      end
+    rescue => error
+      Rails.logger.error('[ERROR] API | Users | send_message: ' + error.message)
       error_response
     end
   end

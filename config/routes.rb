@@ -11,27 +11,28 @@ Rails.application.routes.draw do
       get 'actions', to: 'api#actions'
       get 'logs_per_action', to: 'api#logs_per_action'
 
-      get 'courses', to: 'user#courses'
+      get 'user', to: 'user#info'
+
       get 'dashboard', to: 'user#statistics'
 
-      get 'courses/logs', to: 'course#get_logs'
+      get 'courses', to: 'user#courses'
       get 'courses/notes', to: 'note#notes'
+
+      get 'courses/logs', to: 'course#get_logs'
       get 'courses/contents', to: 'course#get_course_contents'
       get 'courses/enrolled_users', to: 'course#get_enrolled_users'
       get 'courses/contents/modules', to: 'course#get_course_modules'
-
       get 'courses/risk_analysis', to: 'course#get_risk_analysis'
-      post 'courses/risk_analysis_transform', to: 'course#transform_risk_analysis_data'
+
+      post 'send_message', to: 'user#send_message'
 
       get 'notifications', to: 'notification#notifications'
 
       get 'notes', to: 'note#notes'
 
-      get 'user', to: 'user#info'
-
       get 'events', to: 'event#get_events'
 
-      get 'admin/users/logs', to: 'admin#logs'
+      # get 'admin/users/logs', to: 'admin#logs'
 
     end
   end

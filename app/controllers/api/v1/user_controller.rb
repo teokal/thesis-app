@@ -101,4 +101,19 @@ class Api::V1::UserController < Api::V1::ApiController
     error_response
   end
 
+  def send_message
+    controller = ApplicationController::UserController.new
+    controller.request = ActionDispatch::Request.new(request.env)
+    response = controller.send_message(@user)
+
+    if response.class == Hash && response[:type] == :error
+      success_response(type: :error, message: response[:message])
+    else
+      success_response(data: response)
+    end
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
+  end
+
 end
