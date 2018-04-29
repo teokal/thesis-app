@@ -26,6 +26,16 @@ Rails.application.routes.draw do
 
       post 'send_message', to: 'user#send_message'
 
+      get 'courses/categories', to: 'course_category#index'
+      post 'courses/categories', to: 'course_category#create'
+      delete 'courses/categories', to: 'course_category#delete'
+
+      get 'courses/activities', to: 'user#custom_activities_index'
+      post 'courses/activities', to: 'user#custom_activities_update'
+
+      get 'courses/categories_parameters', to: 'course_category#parameters_index'
+      post 'courses/categories_parameters', to: 'course_category#parameters_update'
+
       get 'notifications', to: 'notification#notifications'
 
       get 'notes', to: 'note#notes'

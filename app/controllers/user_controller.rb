@@ -94,4 +94,13 @@ class UserController < ApplicationController
     end
   end
 
+  def send_message(user)
+    begin
+
+    rescue => error
+      Rails.logger.error('[ERROR] API | Users | custom_activities: ' + error.message)
+      error_response
+    end
+  end
+
 end
