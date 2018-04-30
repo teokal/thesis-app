@@ -2,6 +2,18 @@ class CourseCategoryController < ApplicationController
   def index(user)
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0))
       cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false)
+
+      if cc.empty?
+        default_categories = %w(Slides Quiz None).map { |cat|
+          {
+            course_id: params[:course_id].to_i,
+            name: cat,
+            final: true,
+          }
+        }
+        user.course_categories.create(default_categories)
+      end
+
       cc.as_json(only: [:id, :name])
     else
       {type: :error}
@@ -12,9 +24,9 @@ class CourseCategoryController < ApplicationController
 
   def create(user)
     if !params[:course_id].blank? && !params[:name].blank? &&
-       (!params[:name].downcase.in? %w(id title name))
+       (!params[:name].downcase.in? %w(id title name none))
       cc = user.course_categories.new(
-        course_id: params[:course_id],
+        course_id: params[:course_id].to_i,
         name: params[:name],
       )
 
@@ -33,10 +45,11 @@ class CourseCategoryController < ApplicationController
   def delete(user)
     cc = user.course_categories.find_by_id(params[:id])
 
-    if cc
+    if cc && (cc.name.downcase != "none")
       cc.update(deleted: true)
+      return {deleted: true}
     else
-      {type: :error}
+      return {type: :error}
     end
   rescue => error
     Rails.logger.debug(error.message)
@@ -74,7 +87,7 @@ class CourseCategoryController < ApplicationController
 
       categories_w_params_serializer(cc)
     else
-      {type: :error}
+      return {type: :error}
     end
   rescue => error
     Rails.logger.debug(error.message)
@@ -91,7 +104,7 @@ class CourseCategoryController < ApplicationController
         cat.merge!(Hash[param.series, param.value])
       }
 
-      cat
+      return cat
     }
   end
 end

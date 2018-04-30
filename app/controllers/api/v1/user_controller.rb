@@ -26,9 +26,9 @@ class Api::V1::UserController < Api::V1::ApiController
 
       success_response(
         user: @user.as_json({
-                                only: [:username, :first_name, :last_name,
-                                       :full_name, :picture_url, :access_token],
-                              }),
+          only: [:username, :first_name, :last_name,
+                 :full_name, :picture_url, :access_token],
+        }),
       )
     else
       error_response(data: "User could not be authenticated")
@@ -116,10 +116,25 @@ class Api::V1::UserController < Api::V1::ApiController
     error_response
   end
 
-  def custom_activities
+  def custom_activities_index
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.custom_activities(@user)
+    response = controller.custom_activities_index(@user)
+
+    if response.class == Hash && response[:type] == :error
+      success_response(type: :error, message: response[:message])
+    else
+      success_response(data: response)
+    end
+  # rescue => error
+  #   Rails.logger.debug(error.message)
+  #   error_response
+  end
+
+  def custom_activities_update
+    controller = ApplicationController::UserController.new
+    controller.request = ActionDispatch::Request.new(request.env)
+    response = controller.custom_activities_update(@user)
 
     if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])
@@ -128,6 +143,5 @@ class Api::V1::UserController < Api::V1::ApiController
     end
   rescue => error
     Rails.logger.debug(error.message)
-    error_response
   end
 end
