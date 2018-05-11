@@ -104,7 +104,7 @@ class CourseCategoryController < ApplicationController
         cat.merge!(Hash[param.series, param.value])
       }
 
-      return cat
+      cat
     }
   end
 end
