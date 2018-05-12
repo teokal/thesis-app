@@ -124,11 +124,11 @@ class UserController < ApplicationController
       user.finalize_categories
       activities = user.activities.joins(:category).where("course_categories.course_id = ?", params[:course_id])
 
+      default_category = user.course_categories.find_by(name: "None", final: true, course_id: params[:course_id])
       params[:activities].each { |a|
-        default_category = user.course_categories.find_by(name: "None", final: true, course_id: params[:course_id])
         selected_category = nil
 
-        act = activities.find(a["id"])
+        act = activities.find_by(id: a["id"])
         a.delete("id")
         a.delete("title")
 
