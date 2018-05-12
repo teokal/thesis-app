@@ -59,10 +59,14 @@ class CourseController < ApplicationController
         end
       }
 
+      course_total_modules_contents = course_total_modules_contents
+        .flatten
+        .select { |c| c["type"] == "file" }
+
       {
         data: {
           contents: sections,
-          total_files: course_total_modules_contents_counter,
+          total_files: course_total_modules_contents.count,
           filetypes: calc_perc_from_filenames(course_total_modules_contents),
         },
       }
@@ -88,17 +92,26 @@ class CourseController < ApplicationController
     begin
       if !contents.blank?
         contents
-          .flatten
-          .map { |c| File.extname(c["filename"]).delete(".") }
-          .compact
+          .map { |c| custom_file_naming(File.extname(c["filename"]).delete(".")) }
           .group_by { |x| x }
-          .map { |k, v| {type: k.upcase + " Files", counter: v.count} }
+          .map { |k, v| {type: k, counter: v.count} }
       else
         []
       end
     rescue => e
       []
     end
+  end
+
+  def custom_file_naming(name)
+    return "PDF/Word Files" if name.in? %w(pdf PDF Pdf doc docx txt rdf)
+    return "Excel Files" if name.in? %w(xls xlsm xlsx xlsmx csv tsv)
+    return "Presentations" if name.in? %w(ppt pptx pptm ppsm pps odp)
+    return "HTML Files" if name.in? %w(html xml htm)
+    return "Video Files" if name.in? %w(mp4 mpeg mpg mov wmv)
+    return "Audio Files" if name.in? %w(mp3 mp2 wav)
+    return "Image Files" if name.in? %w(jpeg jpg png svg bmp)
+    return "#{name.upcase} Files"
   end
 
   def custom_categories_graph(user)
