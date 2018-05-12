@@ -18,6 +18,34 @@ class User < ActiveRecord::Base
     Rails.logger.debug(error.message)
   end
 
+  def initialize_course_categories(course_id)
+    cc = self.course_categories.where(course_id: course_id, final: true, deleted: false)
+    unless cc.size > 0
+      default_categories = %w(Slides Quiz None).map { |cat|
+        {
+          course_id: course_id,
+          name: cat,
+          final: true,
+        }
+      }
+      self.course_categories.create(default_categories)
+    end
+  end
+
+  def initialize_custom_activities(moodle_activities, default_category)
+    moodle_activities.each { |a|
+      activity_id = a.first
+      actv = self.activities.preload(:category).find_by(activity_id: activity_id)
+
+      unless actv
+        default_category&.activities&.create(
+          activity_id: activity_id,
+          user: self,
+        )
+      end
+    }
+  end
+
   protected
 
   def email_required?

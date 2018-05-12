@@ -99,7 +99,7 @@ class UserController < ApplicationController
       categories = user.course_categories.preload(:activities).where(course_id: params[:course_id], final: true)
       default_category = categories.find_by(name: "None")
 
-      initialize_custom_activities(user, moodle_activities, default_category)
+      user.initialize_custom_activities(moodle_activities, default_category)
 
       activities = categories.map(&:activities).flatten
       return activities.map { |activity|
@@ -154,19 +154,5 @@ class UserController < ApplicationController
       Rails.logger.error("[ERROR] API | Users | custom_activities_update: " + error.message)
       return {type: :error, message: "There were some errors while saving. Please refresh and try again."}
     end
-  end
-
-  def initialize_custom_activities(user, activities, default_category)
-    activities.each { |a|
-      activity_id = a.first
-      actv = user.activities.preload(:category).find_by(activity_id: activity_id)
-
-      unless actv
-        default_category&.activities&.create(
-          activity_id: activity_id,
-          user: user,
-        )
-      end
-    }
   end
 end

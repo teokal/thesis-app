@@ -1,18 +1,9 @@
 class CourseCategoryController < ApplicationController
   def index(user)
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0))
-      cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false)
+      user.initialize_course_categories(params[:course_id].to_i)
 
-      if cc.empty?
-        default_categories = %w(Slides Quiz None).map { |cat|
-          {
-            course_id: params[:course_id].to_i,
-            name: cat,
-            final: true,
-          }
-        }
-        user.course_categories.create(default_categories)
-      end
+      cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false)
 
       cc.as_json(only: [:id, :name])
     else
@@ -57,6 +48,8 @@ class CourseCategoryController < ApplicationController
 
   # CATEGORY PARAMETERS
   def parameters_index(user)
+    user.initialize_course_categories(params[:course_id].to_i)
+
     cc = user.course_categories.preload(:parameters).where(course_id: params[:course_id])
     categories_w_params_serializer(cc)
   rescue => error

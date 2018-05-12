@@ -88,4 +88,19 @@ class Api::V1::CourseController < Api::V1::ApiController
     Rails.logger.debug(error.message)
     error_response
   end
+
+  def get_custom_categories_graph
+    controller = ApplicationController::CourseController.new
+    controller.request = ActionDispatch::Request.new(request.env)
+    response = controller.custom_categories_graph(@user)
+
+    if response[:type] == :error
+      success_response(type: :error, message: response[:message])
+    else
+      success_response(data: response[:data])
+    end
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
+  end
 end
