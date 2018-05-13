@@ -46,6 +46,11 @@ class User < ActiveRecord::Base
     }
   end
 
+  def has_initialized_course?(course_id)
+    counter = self.course_categories.where(course_id: course_id, final: true).map(&:activities).count
+    (counter == 0) ? false : true
+  end
+
   protected
 
   def email_required?

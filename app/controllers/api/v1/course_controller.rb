@@ -103,4 +103,13 @@ class Api::V1::CourseController < Api::V1::ApiController
     Rails.logger.debug(error.message)
     error_response
   end
+
+  def initialized_course
+    success_response(data: {
+                       initialized_course: @user.has_initialized_course?(params[:course_id]),
+                     })
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
+  end
 end

@@ -28,11 +28,12 @@ Rails.application.routes.draw do
       post "courses/categories", to: "course_category#create"
       delete "courses/categories", to: "course_category#delete"
 
+      get "courses/initialized_course", to: "course#initialized_course"
       get "courses/activities", to: "user#custom_activities_index"
       post "courses/activities", to: "user#custom_activities_update"
 
-      get "courses/categories_parameters", to: "course_category#parameters_index"
-      post "courses/categories_parameters", to: "course_category#parameters_update"
+      get "courses/categories_parameters", to: "course#parameters_index"
+      post "courses/categories_parameters", to: "course#parameters_update"
 
       get "notifications", to: "notification#notifications"
 
