@@ -104,6 +104,36 @@ class Api::V1::CourseController < Api::V1::ApiController
     error_response
   end
 
+  def parameters_index
+    controller = ApplicationController::CourseController.new
+    controller.request = ActionDispatch::Request.new(request.env)
+    response = controller.parameters_index(@user)
+
+    if response.class == Hash && response[:type] == :error
+      success_response(type: :error, message: response[:message])
+    else
+      success_response(data: response)
+    end
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
+  end
+
+  def parameters_update
+    controller = ApplicationController::CourseController.new
+    controller.request = ActionDispatch::Request.new(request.env)
+    response = controller.parameters_update(@user)
+
+    if response.class == Hash && response[:type] == :error
+      success_response(type: :error, message: response[:message])
+    else
+      success_response(data: response)
+    end
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
+  end
+
   def initialized_course
     success_response(data: {
                        initialized_course: @user.has_initialized_course?(params[:course_id]),

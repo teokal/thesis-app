@@ -136,4 +136,64 @@ class CourseController < ApplicationController
       {type: :error, message: "This course does not have categories"}
     end
   end
+
+  # CATEGORY PARAMETERS
+  def parameters_index(user)
+    user.initialize_course_categories(params[:course_id].to_i)
+
+    course_params_serializer(user, params[:course_id])
+  rescue => error
+    Rails.logger.debug(error.message)
+  end
+
+  def parameters_update(user)
+    if (!params[:course_id].blank? && (params[:course_id].to_i != 0) && !params[:parameters].blank?)
+      cc = user.course_categories.preload(:parameters).where(course_id: params[:course_id].to_i, deleted: false)
+      user_course_constants = user.parameters.where(course_id: params[:course_id], constant: true)
+
+      params[:parameters].map { |p|
+        begin
+          selected_cc = cc.find(p[:category_id])
+          p.delete(:category_id)
+          p.delete(:category_name)
+
+          p.keys.each { |k|
+            param = selected_cc.parameters.find_by(series: k.to_i)
+            if !param.blank?
+              param.value = p[k]
+              param.save
+            else
+              selected_cc.parameters.create(value: p[k], series: k.to_i, constant: false,
+                                            course_id: selected_cc.course_id, user_id: user.id)
+            end
+          }
+        rescue => error
+          Rails.logger.debug(error.message)
+          next
+        end
+      }
+
+      params[:constants].each { |k, v|
+        begin
+          cnst = user_course_constants.find_by(series: k.to_i)
+          if !cnst.blank?
+            cnst.value = v
+            cnst.save
+          else
+            CourseCategoryParameter.create(user_id: user.id, value: v, series: k.to_i,
+                                           course_id: params[:course_id], constant: true)
+          end
+        rescue => error
+          Rails.logger.debug(error.message)
+          next
+        end
+      }
+
+      course_params_serializer(user, params[:course_id])
+    else
+      return {type: :error}
+    end
+  rescue => error
+    Rails.logger.debug(error.message)
+  end
 end

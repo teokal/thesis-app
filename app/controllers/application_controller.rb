@@ -1,4 +1,4 @@
-require 'elasticsearch'
+require "elasticsearch"
 
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
@@ -6,11 +6,9 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   protect_from_forgery with: :exception
 
-
   ES_CONTROLLER = EsController.new
 
   def index
-
   end
 
   def generate_csrf_token
@@ -19,4 +17,28 @@ class ApplicationController < ActionController::Base
     app_controller.send(:form_authenticity_token)
   end
 
+  def course_params_serializer(user, course_id)
+    course_categories = user.course_categories.where(course_id: course_id, final: true, deleted: false)
+    constants = user.parameters.where(course_id: course_id, constant: true)
+
+    params_serialized = course_categories.map { |category|
+      cat = {
+        category_id: category.id,
+        category_name: category.name,
+      }
+
+      category.parameters.each { |param|
+        cat.merge!(Hash[param.series, param.value])
+      }
+
+      cat
+    }
+
+    cnsts_serialized = Hash[constants.collect { |c| [c.series, c.value] }]
+
+    return {
+             parameters: params_serialized,
+             constants: cnsts_serialized,
+           }
+  end
 end

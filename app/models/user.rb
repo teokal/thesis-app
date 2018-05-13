@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
 
   has_many :course_categories, dependent: :destroy
   has_many :activities, dependent: :destroy, foreign_key: "user_id", class_name: "CustomActivity"
+  has_many :parameters, dependent: :destroy, foreign_key: "user_id", class_name: "CourseCategoryParameter"
 
   has_secure_token :access_token
 

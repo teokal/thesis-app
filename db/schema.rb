@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180429100903) do
+ActiveRecord::Schema.define(version: 20180513120941) do
 
   create_table "course_categories", force: true do |t|
     t.integer  "course_id"
@@ -26,12 +26,16 @@ ActiveRecord::Schema.define(version: 20180429100903) do
   add_index "course_categories", ["user_id"], name: "index_course_categories_on_user_id", using: :btree
 
   create_table "course_category_parameters", force: true do |t|
-    t.float   "value",              limit: 24
-    t.integer "series"
+    t.float   "value",              limit: 24,                 null: false
+    t.integer "series",                                        null: false
     t.integer "course_category_id"
+    t.boolean "constant",                      default: false, null: false
+    t.integer "course_id",                                     null: false
+    t.integer "user_id"
   end
 
   add_index "course_category_parameters", ["course_category_id"], name: "index_course_category_parameters_on_course_category_id", using: :btree
+  add_index "course_category_parameters", ["user_id"], name: "index_course_category_parameters_on_user_id", using: :btree
 
   create_table "courses", force: true do |t|
     t.integer  "coursecategory",    limit: 8,          default: 0,        null: false

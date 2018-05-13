@@ -43,34 +43,4 @@ class Api::V1::CourseCategoryController < Api::V1::ApiController
     Rails.logger.debug(error.message)
     error_response
   end
-
-  def parameters_index
-    controller = ApplicationController::CourseCategoryController.new
-    controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.parameters_index(@user)
-
-    if response.class == Hash && response[:type] == :error
-      success_response(type: :error, message: response[:message])
-    else
-      success_response(data: response)
-    end
-  rescue => error
-    Rails.logger.debug(error.message)
-    error_response
-  end
-
-  def parameters_update
-    controller = ApplicationController::CourseCategoryController.new
-    controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.parameters_update(@user)
-
-    if response.class == Hash && response[:type] == :error
-      success_response(type: :error, message: response[:message])
-    else
-      success_response(data: response)
-    end
-  rescue => error
-    Rails.logger.debug(error.message)
-    error_response
-  end
 end
