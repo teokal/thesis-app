@@ -10,7 +10,7 @@ class AddCourseIdToCourseCategoryParameters < ActiveRecord::Migration
 
     CourseCategoryParameter.where.not(category: nil).each do |param|
       param.course_id = param.category.course_id
-      param.user = param.category.user
+      param.user_id = param.category.user.id
       param.save
     end
   end
