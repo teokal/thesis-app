@@ -126,9 +126,9 @@ class Api::V1::UserController < Api::V1::ApiController
     else
       success_response(data: response)
     end
-  # rescue => error
-  #   Rails.logger.debug(error.message)
-  #   error_response
+  rescue => error
+    Rails.logger.debug(error.message)
+    error_response
   end
 
   def custom_activities_update
@@ -143,5 +143,6 @@ class Api::V1::UserController < Api::V1::ApiController
     end
   rescue => error
     Rails.logger.debug(error.message)
+    error_response
   end
 end

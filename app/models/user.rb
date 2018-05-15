@@ -34,17 +34,19 @@ class User < ActiveRecord::Base
   end
 
   def initialize_custom_activities(moodle_activities, default_category)
-    moodle_activities.each { |a|
-      activity_id = a.first
-      actv = self.activities.preload(:category).find_by(activity_id: activity_id)
+    activities_ids = moodle_activities.keys
+    existing_activities_ids = self.course_categories.where(course_id: default_category.course_id)
+      .map { |cat| cat.activities.pluck(:activity_id) }.flatten
 
-      unless actv
-        default_category&.activities&.create(
-          activity_id: activity_id,
-          user: self,
-        )
-      end
-    }
+    removed_activity_ids = existing_activities_ids - activities_ids
+    activities_ids -= existing_activities_ids
+
+    default_category&.activities&.create(activities_ids.map { |actv_id| {activity_id: actv_id, user_id: self.id} })
+    self.activities.where("activity_id IN (?) AND user_id = (?)", removed_activity_ids, self.id).destroy_all
+    true
+  rescue => error
+    Rails.logger.debug("Could not initialize_custom_activities. Message: #{error.message.inspect}")
+    false
   end
 
   def has_initialized_course?(course_id)

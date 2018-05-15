@@ -5,7 +5,7 @@ class MoodleController < ActiveRecord::Base
     Moodle::Api.core_enrol_get_enrolled_users(courseid: Integer(course_id),
                                               options: [{:name => "userfields", :value => "fullname"}])
   rescue => error
-    Rails.logger.debug("Could not get enrolled users for course #{course_id}. Message: #{error.message.inspect}")
+    Rails.logger.debug("[DEBUG] Could not get enrolled users for course #{course_id}. Message: #{error.message.inspect}")
     return []
   end
 
@@ -19,7 +19,7 @@ class MoodleController < ActiveRecord::Base
       }.compact
     }.compact.flatten
   rescue => error
-    Rails.logger.debug("Could not get contents for course #{course_id}. Message: #{error.message.inspect}")
+    Rails.logger.debug("[DEBUG] Could not get contents for course #{course_id}. Message: #{error.message.inspect}")
     return []
   end
 

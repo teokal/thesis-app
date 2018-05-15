@@ -6,7 +6,6 @@ Rails.application.routes.draw do
       post "sign_in", to: "user#sign_in"
 
       get "test", to: "api#test"
-      get "actions", to: "api#actions"
       get "logs_per_action", to: "api#logs_per_action"
 
       get "user", to: "user#info"

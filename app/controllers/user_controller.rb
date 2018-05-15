@@ -93,29 +93,33 @@ class UserController < ApplicationController
 
   def custom_activities_index(user)
     begin
-      course_scorms = Moodle::Api.mod_scorm_get_scorms_by_courses(courseids: Array(params[:course_id]))
-      moodle_activities = course_scorms["scorms"].map { |s| Hash[s["launch"], s["name"]] }.flatten.reduce({}, :merge)
+      course_id = params[:course_id].to_i
+      moodle_activities = MoodleController.contents(course_id).map { |s| Hash[s[:id], s[:title]] }.reduce({}, :merge)
 
-      categories = user.course_categories.preload(:activities).where(course_id: params[:course_id], final: true)
+      categories = user.course_categories.preload(:activities).where(course_id: course_id, final: true)
       default_category = categories.find_by(name: "None")
 
-      user.initialize_custom_activities(moodle_activities, default_category)
+      if user.initialize_custom_activities(moodle_activities, default_category)
+        activities = categories.map(&:activities).flatten
+        return activities.map { |activity|
+                 actvt = {
+                   id: activity.id,
+                   title: moodle_activities[activity.activity_id],
+                 }
 
-      activities = categories.map(&:activities).flatten
-      return activities.map { |activity|
-               actvt = {
-                 id: activity.id,
-                 title: moodle_activities[activity.activity_id],
+                 categories.each { |category|
+                   actvt.merge!(Hash[category.id, activity.category.id == category.id ? true : false])
+                 }
+
+                 actvt
                }
-
-               categories.each { |category|
-                 actvt.merge!(Hash[category.id, activity.category.id == category.id ? true : false])
-               }
-
-               actvt
-             }
+      else
+        Rails.logger.error("[ERROR] Users | custom_activities_index | Failed to initialize custom activities")
+        {type: :error, status: :internal_error}
+      end
     rescue => error
-      Rails.logger.error("[ERROR] API | Users | custom_activities_index: " + error.message)
+      Rails.logger.error("[ERROR] Users | custom_activities_index: " + error.message)
+      {type: :error, status: :internal_error}
     end
   end
 
