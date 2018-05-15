@@ -17,7 +17,7 @@ class MoodleController < ActiveRecord::Base
       course["modules"].collect { |m|
         {id: m["id"], type: m["modname"], category: m["modplural"], title: m["name"]} if m["modname"].in? ApplicationController::MODULES_OF_INTEREST
       }.compact
-    }.compact.flatten
+    }.compact.flatten.sort_by { |x| [x[:modname], x[:title]] }
   rescue => error
     Rails.logger.debug("[DEBUG] Could not get contents for course #{course_id}. Message: #{error.message.inspect}")
     return []

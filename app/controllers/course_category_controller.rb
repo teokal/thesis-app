@@ -3,7 +3,7 @@ class CourseCategoryController < ApplicationController
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0))
       user.initialize_course_categories(params[:course_id].to_i)
 
-      cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false)
+      cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false).order("name = \"None\"")
 
       cc.as_json(only: [:id, :name])
     else
