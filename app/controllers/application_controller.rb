@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   ES_CONTROLLER = EsController.new
+  MODULES_OF_INTEREST = %w(assignment quiz forum scorm resource page folder url)
 
   def index
   end

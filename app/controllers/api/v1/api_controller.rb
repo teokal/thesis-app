@@ -7,12 +7,11 @@ class Api::V1::ApiController < RocketPants::Base
   def test
     id = params[:id].blank? ? 0 : params[:id]
     data = {
-        id: id,
-        message: "Test #{id}",
-        authorized: @user_access
+      id: id,
+      message: "Test #{id}",
+      authorized: @user_access,
     }
     success_response(data: data)
-
   rescue => error
     Rails.logger.error(error.message)
     error_response(type: :internal_error)
@@ -20,25 +19,19 @@ class Api::V1::ApiController < RocketPants::Base
 
   def logs_per_action
     cont = EsController.new
-    response = cont.query_es({from_date: params[:from], to_dat: params[:to], query: params[:query],
-                              view: params[:view], module: 'all'})
+    response = cont.query_es({from_date: params[:from], to_date: params[:to], query: params[:query],
+                              view: params[:view], module: "all"})
     success_response(data: response)
-
   rescue => error
     Rails.logger.error(error.message)
     error_response(type: :internal_error)
   end
 
-  def actions
-    success_response(actions: {users: %w(),
-                               courses: %w(viewed quiz)})
-  end
-
   def authenticate_access
-    Rails.logger.info("REMOTE_ADDR: #{request.env['REMOTE_ADDR']}")
+    Rails.logger.info("REMOTE_ADDR: #{request.env["REMOTE_ADDR"]}")
     if authenticate_entity_access
       @user_access = true
-    elsif params[:action] == 'test'
+    elsif params[:action] == "test"
       @user_access = false
     else
       @user_access = false
@@ -47,25 +40,26 @@ class Api::V1::ApiController < RocketPants::Base
   end
 
   protected
+
   def authenticate_entity_access
     authenticate_with_http_token do |access_token, options|
-      @user = User.find_by('access_token = (?) AND ? < expires_at', access_token, Time.now)
+      @user = User.find_by("access_token = (?) AND ? < expires_at", access_token, Time.now)
       return true unless @user.nil?
       return false
     end
   end
 
   def render_unauthorized
-    self.headers['WWW-Authenticate'] = 'Token realm="Application"'
+    self.headers["WWW-Authenticate"] = 'Token realm="Application"'
     self.status = :unauthorized
-    expose(status: :unauthorized, message: 'Bad Token')
+    expose(status: :unauthorized, message: "Bad Token")
   end
 
   def set_access
-    headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE, OPTIONS'
-    headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, Token'
-    headers['Access-Control-Max-Age'] = '1728000'
+    headers["Access-Control-Allow-Origin"] = "*"
+    headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS"
+    headers["Access-Control-Allow-Headers"] = "Origin, Content-Type, Accept, Authorization, Token"
+    headers["Access-Control-Max-Age"] = "1728000"
   end
 
   def success_response(additional_fields = {})
@@ -74,8 +68,8 @@ class Api::V1::ApiController < RocketPants::Base
     end
 
     response_body = {
-        status: :success,
-        type: :ok
+      status: :success,
+      type: :ok,
     }.merge(additional_fields)
 
     expose(response_body)
@@ -87,10 +81,10 @@ class Api::V1::ApiController < RocketPants::Base
     end
 
     response_body = {
-        status: :error,
+      status: :error,
     }.merge(additional_fields)
 
+    self.status = additional_fields[:status] || :bad_request
     expose(response_body)
   end
-
 end

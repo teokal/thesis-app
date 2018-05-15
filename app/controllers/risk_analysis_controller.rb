@@ -1,61 +1,46 @@
 class RiskAnalysisController < ApplicationController
   def get_risk_analysis
-    enrolled_students = Moodle::Api.core_enrol_get_enrolled_users(courseid: params[:courseid], options: [{:name => "userfields", :value => "fullname"}])
-    course_scorms = Moodle::Api.mod_scorm_get_scorms_by_courses(courseids: Array(params[:courseid].to_i))
+    course_id = params[:courseid].to_i
 
+    enrolled_students = MoodleController.enrolled_users(course_id)
     if enrolled_students.blank?
       return {type: :error, message: "There are 0 enrolled users."}
     else
-      enrolled_students_tmp = {}
-      enrolled_students.map { |user|
-        enrolled_students_tmp[user["id"]] = user["fullname"]
-      }
-      enrolled_students = enrolled_students_tmp
+      enrolled_students = enrolled_students.map { |user| Hash[user["id"], user["fullname"]] }.reduce({}, :merge)
     end
 
-    scoes_tracks = MoodleController.connection.exec_query("
-      SELECT ssc.userid, ssc.scormid, ssc.scoid, ssc.attempt, ssc.element, ssc.value
-      FROM moodle.mdl_scorm_scoes_track ssc
-      WHERE ssc.scoid IN (
-          SELECT id FROM moodle.mdl_scorm_scoes WHERE scorm IN (
-            SELECT id FROM moodle.mdl_scorm WHERE course = #{params[:courseid]}) AND scormtype = 'sco')
-          AND ssc.userid IN (#{enrolled_students.keys.join(",").to_s})
-        AND ssc.element = 'cmi.core.lesson_status';")
+    course_modules_details = MoodleController.contents(course_id)
+    if course_modules_details.blank?
+      return {type: :error, message: "Course does not have modules that belong on #{MODULES_OF_INTEREST.map { |w| w.pluralize }.join(", ").capitalize} categories."}
+    end
 
-    if scoes_tracks.blank?
-      return {type: :error, message: "Course does not have scorm data for users"}
+    completion_data = MoodleController.activities(course_id, enrolled_students)
+    if completion_data.blank?
+      return {type: :error, message: "Course does not completion data"}
     else
       response_data = []
+      course_modules = completion_data.map { |c| c["coursemoduleid"] }.uniq.sort
 
-      data = scoes_tracks.group_by { |r| r["userid"] }
-      course_scoes = scoes_tracks.map { |c| c["scoid"] }.uniq
-
-      data.map { |user, d|
-        user_analysis = d.group_by { |t| t["scoid"] }.map { |k, v| Hash[k, v.map { |e| e.slice("element", "value") }] }
-        result = course_scoes.product([false]).to_h
-
-        user_analysis.each { |sc|
-          sc.each { |k, v|
-            v.each { |p|
-              result[k] = true if p["value"].in? ["complete", "passed"]
-            }
-          }
-        }
+      completion_data.group_by { |r| r["userid"] }.map { |user_id, v|
+        user_results = course_modules.product([false]).to_h
+        Hash[user_id, v.map { |e|
+               user_results[e["coursemoduleid"]] = (e["completionstate"] == (1 || 2) ? true : false)
+             }
+        ]
 
         response_data << {
-          id: user,
-          name: "#{enrolled_students[user]}",
-          analysis: result.map { |k, v| {id: k, value: v} },
+          id: user_id,
+          name: "#{enrolled_students[user_id]}",
+          analysis: user_results.map { |k, v| {id: k, value: v} },
         }
       }
 
-      {
-        data: {
-          scorms: course_scorms["scorms"]
-            .map { |scorm| {id: scorm["launch"], title: scorm["name"]} },
-          users: response_data,
-        },
-      }
+      return {
+               data: {
+                 scorms: course_modules_details,
+                 users: response_data,
+               },
+             }
     end
   end
 end
