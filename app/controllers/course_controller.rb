@@ -5,7 +5,8 @@ class CourseController < ApplicationController
     keys = params[:query] == "all" ? %w(viewed) : queries
     keys.each do |query|
       data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
-                                                        query: query, view: params[:view], module: "course", course_id: params[:course]})]
+                                                        query: query, view: params[:view], module: params[:module],
+                                                        course_id: params[:course], module_id: params[:module_id]})]
     end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
@@ -83,7 +84,7 @@ class CourseController < ApplicationController
   end
 
   def enrolled_users
-    enrolled_users = Moodle::Api.core_enrol_get_enrolled_users(courseid: params[:courseid], options: [{:name => "userfields", :value => "fullname"}])
+    enrolled_users = MoodleController.enrolled_users(params[:courseid])
     if enrolled_users.blank?
       {type: :error, message: "Course not found or does not have enrolled users"}
     else
