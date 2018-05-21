@@ -19,7 +19,7 @@ Rails.application.routes.draw do
       get "courses/contents", to: "course#get_course_contents"
       get "courses/custom_categories_graph", to: "course#get_custom_categories_graph"
       get "courses/enrolled_users", to: "course#get_enrolled_users"
-      get "courses/contents/modules", to: "course#get_course_modules"
+      get "courses/modules", to: "course#get_course_modules"
       get "courses/risk_analysis", to: "course#get_risk_analysis"
       post "send_message", to: "user#send_message"
 

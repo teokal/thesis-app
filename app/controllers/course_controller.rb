@@ -78,9 +78,15 @@ class CourseController < ApplicationController
   end
 
   def get_course_modules
-    modules = Moodle::Api.core_course_get_course_module(cmid: params[:cmid])
-    modules.blank? ? {type: :error, message: "Course not found"} : modules
-    {data: modules}
+    course_id = params[:course_id].to_i
+    moodle_activities = MoodleController.contents(course_id)
+    moodle_activities.blank? ? {type: :error, message: "Could not find data for this course"} : moodle_activities
+    {
+      data: {
+        sorted: moodle_activities.sort_by { |x| x[:type] },
+        groupped: moodle_activities.group_by { |x| x[:category] },
+      },
+    }
   end
 
   def enrolled_users
