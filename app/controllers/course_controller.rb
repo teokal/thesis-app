@@ -82,10 +82,7 @@ class CourseController < ApplicationController
     moodle_activities = MoodleController.contents(course_id)
     moodle_activities.blank? ? {type: :error, message: "Could not find data for this course"} : moodle_activities
     {
-      data: {
-        sorted: moodle_activities.sort_by { |x| x[:type] },
-        groupped: moodle_activities.group_by { |x| x[:category] },
-      },
+      data: moodle_activities.sort_by { |x| x[:type] }
     }
   end
 
