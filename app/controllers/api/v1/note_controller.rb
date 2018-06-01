@@ -1,9 +1,8 @@
 class Api::V1::NoteController < Api::V1::ApiController
-
   def notes
     controller = ApplicationController::NoteController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.notes
+    response = controller.notes(@user)
 
     if response[:type] == :error
       success_response(type: :error, message: response[:message])
@@ -14,5 +13,4 @@ class Api::V1::NoteController < Api::V1::ApiController
     Rails.logger.debug(error.message)
     error_response
   end
-
 end

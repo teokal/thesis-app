@@ -1,12 +1,13 @@
 class CourseController < ApplicationController
   def get_logs
+    course_id = params[:course_id].to_i
     queries = params[:query].split(",")
     data_table = []
     keys = params[:query] == "all" ? %w(viewed) : queries
     keys.each do |query|
       data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
                                                         query: query, view: params[:view], module: params[:module],
-                                                        course_id: params[:course], module_ids: params[:module_ids]})]
+                                                        course_id: course_id, module_ids: params[:module_ids]})]
     end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
@@ -17,7 +18,8 @@ class CourseController < ApplicationController
   end
 
   def get_course_contents
-    sections = Moodle::Api.core_course_get_contents(courseid: params[:courseid], options: [{:name => "excludemodules", :value => "false"}])
+    course_id = params[:course_id].to_i
+    sections = Moodle::Api.core_course_get_contents(courseid: course_id, options: [{:name => "excludemodules", :value => "false"}])
     if sections.blank?
       {type: :error, message: "Course not found or has no content"}
     else
@@ -80,14 +82,16 @@ class CourseController < ApplicationController
   def get_course_modules
     course_id = params[:course_id].to_i
     moodle_activities = MoodleController.contents(course_id)
-    moodle_activities.blank? ? {type: :error, message: "Could not find data for this course"} : moodle_activities
-    {
-      data: moodle_activities.sort_by { |x| x[:type] },
-    }
+    if moodle_activities.blank?
+      {type: :error, message: "Could not find data for this course"}
+    else
+      {data: moodle_activities.sort_by { |x| x[:type] }}
+    end
   end
 
   def enrolled_users
-    enrolled_users = MoodleController.enrolled_users(params[:courseid])
+    course_id = params[:course_id].to_i
+    enrolled_users = MoodleController.enrolled_users(course_id)
     if enrolled_users.blank?
       {type: :error, message: "Course not found or does not have enrolled users"}
     else
@@ -150,17 +154,19 @@ class CourseController < ApplicationController
 
   # CATEGORY PARAMETERS
   def parameters_index(user)
-    user.initialize_course_categories(params[:course_id].to_i)
+    course_id = params[:course_id].to_i
+    user.initialize_course_categories(course_id)
 
-    course_params_serializer(user, params[:course_id])
+    course_params_serializer(user, course_id)
   rescue => error
     Rails.logger.debug(error.message)
   end
 
   def parameters_update(user)
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0) && !params[:parameters].blank?)
-      cc = user.course_categories.preload(:parameters).where(course_id: params[:course_id].to_i, deleted: false).order("name = \"None\"")
-      user_course_constants = user.parameters.where(course_id: params[:course_id], constant: true)
+      course_id = params[:course_id].to_i
+      cc = user.course_categories.preload(:parameters).where(course_id: course_id, deleted: false).order("name = \"None\"")
+      user_course_constants = user.parameters.where(course_id: course_id, constant: true)
 
       params[:parameters].map { |p|
         begin
@@ -192,7 +198,7 @@ class CourseController < ApplicationController
             cnst.save
           else
             CourseCategoryParameter.create(user_id: user.id, value: v, series: k.to_i,
-                                           course_id: params[:course_id], constant: true)
+                                           course_id: course_id, constant: true)
           end
         rescue => error
           Rails.logger.debug(error.message)
@@ -200,7 +206,7 @@ class CourseController < ApplicationController
         end
       }
 
-      course_params_serializer(user, params[:course_id])
+      course_params_serializer(user, course_id)
     else
       return {type: :error}
     end

@@ -1,6 +1,6 @@
 class RiskAnalysisController < ApplicationController
   def get_risk_analysis
-    course_id = params[:courseid].to_i
+    course_id = params[:course_id].to_i
 
     enrolled_students = MoodleController.enrolled_users(course_id)
     if enrolled_students.blank?

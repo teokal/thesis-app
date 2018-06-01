@@ -135,8 +135,9 @@ class Api::V1::CourseController < Api::V1::ApiController
   end
 
   def initialized_course
+    course_id = params[:course_id].to_i
     success_response(data: {
-                       initialized_course: @user.has_initialized_course?(params[:course_id]),
+                       initialized_course: @user.has_initialized_course?(course_id),
                      })
   rescue => error
     Rails.logger.debug(error.message)

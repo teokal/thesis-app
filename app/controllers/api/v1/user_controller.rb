@@ -59,7 +59,7 @@ class Api::V1::UserController < Api::V1::ApiController
   def info
     controller = ApplicationController::UserController.new
     controller.request = ActionDispatch::Request.new(request.env)
-    response = controller.info(@user, params[:userid])
+    response = controller.info(@user, params[:user_id])
 
     if response.class == Hash && response[:type] == :error
       success_response(type: :error, message: response[:message])

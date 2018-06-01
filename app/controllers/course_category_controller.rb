@@ -1,9 +1,10 @@
 class CourseCategoryController < ApplicationController
   def index(user)
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0))
-      user.initialize_course_categories(params[:course_id].to_i)
+      course_id = params[:course_id].to_i
+      user.initialize_course_categories(course_id)
 
-      cc = user.course_categories.where(course_id: params[:course_id].to_i, final: true, deleted: false).order("name = \"None\"")
+      cc = user.course_categories.where(course_id: course_id, final: true, deleted: false).order("name = \"None\"")
 
       cc.as_json(only: [:id, :name])
     else
@@ -16,8 +17,10 @@ class CourseCategoryController < ApplicationController
   def create(user)
     if !params[:course_id].blank? && !params[:name].blank? &&
        (!params[:name].downcase.in? %w(id title name none))
+      course_id = params[:course_id].to_i
+
       cc = user.course_categories.new(
-        course_id: params[:course_id].to_i,
+        course_id: course_id,
         name: params[:name],
       )
 
