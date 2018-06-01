@@ -15,7 +15,7 @@ class MoodleController < ActiveRecord::Base
 
     contents.map { |course|
       course["modules"].collect { |m|
-        {id: m["id"], type: m["modname"], category: m["modplural"], title: m["name"]} if m["modname"].in? ApplicationController::MODULES_OF_INTEREST
+        {id: m["id"], module: "course_module", type: m["modname"], category: m["modplural"], title: m["name"]} if m["modname"].in? ApplicationController::MODULES_OF_INTEREST
       }.compact
     }.compact.flatten.sort_by { |x| [x[:modname], x[:title]] }
   rescue => error
