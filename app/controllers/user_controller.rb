@@ -35,7 +35,7 @@ class UserController < ApplicationController
 
     es_stats = ES_CONTROLLER.query_es({from_date: from_date, to_date: to_date,
                                        query: key, view: view, module: "course",
-                                       course_id: courses.map { |course| course["id"] }})
+                                       course_id: courses.map { |course| course["id"] }}, module_ids: nil)
 
     statistics << Hash[key, es_stats]
     {

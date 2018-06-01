@@ -6,7 +6,7 @@ class CourseController < ApplicationController
     keys.each do |query|
       data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
                                                         query: query, view: params[:view], module: params[:module],
-                                                        course_id: params[:course], module_id: params[:module_id]})]
+                                                        course_id: params[:course], module_ids: params[:module_ids]})]
     end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
@@ -82,7 +82,7 @@ class CourseController < ApplicationController
     moodle_activities = MoodleController.contents(course_id)
     moodle_activities.blank? ? {type: :error, message: "Could not find data for this course"} : moodle_activities
     {
-      data: moodle_activities.sort_by { |x| x[:type] }
+      data: moodle_activities.sort_by { |x| x[:type] },
     }
   end
 
