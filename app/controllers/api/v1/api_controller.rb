@@ -17,16 +17,6 @@ class Api::V1::ApiController < RocketPants::Base
     error_response(type: :internal_error)
   end
 
-  def logs_per_action
-    cont = EsController.new
-    response = cont.query_es({from_date: params[:from], to_date: params[:to], query: params[:query],
-                              view: params[:view], module: "all"})
-    success_response(data: response)
-  rescue => error
-    Rails.logger.error(error.message)
-    error_response(type: :internal_error)
-  end
-
   def authenticate_access
     Rails.logger.info("REMOTE_ADDR: #{request.env["REMOTE_ADDR"]}")
     if authenticate_entity_access
