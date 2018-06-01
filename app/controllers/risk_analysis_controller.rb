@@ -14,7 +14,8 @@ class RiskAnalysisController < ApplicationController
       return {type: :error, message: "Course does not have modules that belong on #{MODULES_OF_INTEREST.map { |w| w.pluralize }.join(", ").capitalize} categories."}
     end
 
-    completion_data = MoodleController.activities(course_id, enrolled_students)
+    dates = {from: params[:from_date], to: params[:to_date]}
+    completion_data = MoodleController.activities(course_id, enrolled_students, dates)
     if completion_data.blank?
       return {type: :error, message: "Course does not completion data"}
     else

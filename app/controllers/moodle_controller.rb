@@ -23,7 +23,12 @@ class MoodleController < ActiveRecord::Base
     return []
   end
 
-  def self.activities(course_id, users_hash)
+  def self.activities(course_id, users_hash, dates)
+    dates = {
+      from: dates[:from].blank? ? 0 : Time.parse(dates[:from]).to_i,
+      to: dates[:from].blank? ? Time.now.end_of_day.to_i : Time.parse(dates[:to]).to_i,
+    }
+
     self.connection.exec_query("
         SELECT cmc.coursemoduleid, m.name, cm.instance, cmc.userid, cmc.completionstate
           FROM mdl_course_modules cm
@@ -35,6 +40,7 @@ class MoodleController < ActiveRecord::Base
             cm.course = #{Integer(course_id)} AND 
             cm.completion <> 0 AND 
             m.name IN (\"#{ApplicationController::MODULES_OF_INTEREST.join("\", \"")}\") AND
-            cmc.userid IN (#{users_hash.keys.join(",").to_s});")
+            cmc.userid IN (#{users_hash.keys.join(",").to_s}) AND 
+            cmc.timemodified > #{dates[:from]} AND cmc.timemodified < #{dates[:to]};")
   end
 end
