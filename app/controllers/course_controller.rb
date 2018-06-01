@@ -4,10 +4,14 @@ class CourseController < ApplicationController
     queries = params[:query].split(",")
     data_table = []
     keys = params[:query] == "all" ? %w(viewed) : queries
+    module_ids = params[:module_ids]
+    if (params[:module_ids].include? -1) || (params[:module_ids].include? "-1")
+      module_ids = MoodleController.contents(course_id).collect { |x| x[:id] }
+    end
     keys.each do |query|
       data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
                                                         query: query, view: params[:view], module: params[:module],
-                                                        course_id: course_id, module_ids: params[:module_ids]})]
+                                                        course_id: course_id, module_ids: module_ids})]
     end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
@@ -85,7 +89,8 @@ class CourseController < ApplicationController
     if moodle_activities.blank?
       {type: :error, message: "Could not find data for this course"}
     else
-      {data: moodle_activities.sort_by { |x| x[:type] }}
+      act_all = [{id: -1, type: "none", category: "None", title: "All"}]
+      {data: act_all | moodle_activities.sort_by { |x| x[:type] }}
     end
   end
 
