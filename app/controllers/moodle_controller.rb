@@ -41,6 +41,6 @@ class MoodleController < ActiveRecord::Base
             cm.completion <> 0 AND 
             m.name IN (\"#{ApplicationController::MODULES_OF_INTEREST.join("\", \"")}\") AND
             cmc.userid IN (#{users_hash.keys.join(",").to_s}) AND 
-            cmc.timemodified > #{dates[:from]} AND cmc.timemodified < #{dates[:to]};")
+            cmc.timemodified >= #{dates[:from]} AND cmc.timemodified <= #{dates[:to]};")
   end
 end
