@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   def course_params_serializer(user, course_id)
     course_categories = user.course_categories
       .where(course_id: course_id, final: true, deleted: false)
-      .where.not(name: "None")
+      .where.not(name: "Uncategorized")
     constants = user.parameters.where(course_id: course_id, constant: true)
 
     params_serialized = course_categories.map { |category|

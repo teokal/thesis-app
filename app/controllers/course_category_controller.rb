@@ -4,7 +4,7 @@ class CourseCategoryController < ApplicationController
       course_id = params[:course_id].to_i
       user.initialize_course_categories(course_id)
 
-      cc = user.course_categories.where(course_id: course_id, final: true, deleted: false).order("name = \"None\"")
+      cc = user.course_categories.where(course_id: course_id, final: true, deleted: false).order("name = \"Uncategorized\"")
 
       cc.as_json(only: [:id, :name])
     else
@@ -16,7 +16,7 @@ class CourseCategoryController < ApplicationController
 
   def create(user)
     if !params[:course_id].blank? && !params[:name].blank? &&
-       (!params[:name].downcase.in? %w(id title name none))
+       (!params[:name].downcase.in? %w(id title name uncategorized))
       course_id = params[:course_id].to_i
 
       cc = user.course_categories.new(
@@ -39,7 +39,7 @@ class CourseCategoryController < ApplicationController
   def delete(user)
     cc = user.course_categories.find_by_id(params[:id])
 
-    if cc && (cc.name.downcase != "none")
+    if cc && (cc.name.downcase != "uncategorized")
       cc.update(deleted: true)
       return {deleted: true}
     else

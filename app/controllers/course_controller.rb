@@ -91,7 +91,7 @@ class CourseController < ApplicationController
     else
       act_default = [
         {id: course_id, module: "course", type: "course", category: "Course", title: "Course Home Page"},
-        {id: -1, module: "course_module", type: "none", category: "None", title: "All"},
+        {id: -1, module: "course_module", type: "uncategorized", category: "Uncategorized", title: "All"},
       ]
       {data: act_default | moodle_activities.sort_by { |x| x[:type] }}
     end
@@ -137,8 +137,8 @@ class CourseController < ApplicationController
     course_id = params[:course_id].to_i
     moodle_activities = MoodleController.contents(course_id).map { |s| Hash[s[:id], s[:title]] }.reduce({}, :merge)
 
-    categories = user.course_categories.preload(:activities).where(course_id: course_id, final: true).order("name = \"None\"")
-    default_category = categories.find_by(name: "None", final: true, course_id: course_id)
+    categories = user.course_categories.preload(:activities).where(course_id: course_id, final: true).order("name = \"Uncategorized\"")
+    default_category = categories.find_by(name: "Uncategorized", final: true, course_id: course_id)
 
     if user.initialize_custom_activities(moodle_activities, default_category)
       if categories.count > 0
@@ -173,7 +173,7 @@ class CourseController < ApplicationController
   def parameters_update(user)
     if (!params[:course_id].blank? && (params[:course_id].to_i != 0) && !params[:parameters].blank?)
       course_id = params[:course_id].to_i
-      cc = user.course_categories.preload(:parameters).where(course_id: course_id, deleted: false).order("name = \"None\"")
+      cc = user.course_categories.preload(:parameters).where(course_id: course_id, deleted: false).order("name = \"Uncategorized\"")
       user_course_constants = user.parameters.where(course_id: course_id, constant: true)
 
       params[:parameters].map { |p|

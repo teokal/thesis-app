@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   def initialize_course_categories(course_id)
     cc = self.course_categories.where(course_id: course_id, final: true, deleted: false)
     unless cc.size > 0
-      default_categories = %w(Slides Quiz None).map { |cat|
+      default_categories = %w(Slides Quiz Uncategorized).map { |cat|
         {
           course_id: course_id,
           name: cat,

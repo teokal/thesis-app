@@ -5,11 +5,11 @@ class CourseCategory < ActiveRecord::Base
 
   before_destroy :default_category
 
-  default_scope { order("name = \"None\"") }
+  default_scope { order("name = \"Uncategorized\"") }
 
   def default_category
     activities = self.activities
-    default_category = self.user.course_categories.find_by(name: "None", final: true, course_id: self.course_id)
+    default_category = self.user.course_categories.find_by(name: "Uncategorized", final: true, course_id: self.course_id)
     activities.update_all(course_category_id: default_category.id)
   end
 end
