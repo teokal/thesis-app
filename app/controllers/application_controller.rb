@@ -30,9 +30,14 @@ class ApplicationController < ActionController::Base
         category_name: category.name,
       }
 
-      category.parameters.each { |param|
-        cat.merge!(Hash[param.series, param.value])
-      }
+      if category.parameters.count > 0
+        category.parameters.each { |param|
+          cat.merge!(Hash[param.series, param.value])
+        }
+      else
+        cat.merge!(Hash[1, 0])
+        cat.merge!(Hash[2, 0])
+      end
 
       cat
     }
