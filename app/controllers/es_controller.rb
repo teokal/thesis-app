@@ -63,12 +63,20 @@ class EsController < ApplicationController
       {match: {action: {query: options[:query]}}},
     ]
 
-    unless options[:module] != "course_module" && options[:module_ids].blank?
+    unless options[:module] != "course_module" || options[:module_ids].blank?
       module_ids = options[:module_ids]
       if options[:module_ids].is_a? String
         module_ids = options[:module_ids].split(",")
       end
       search_body[:query][:bool][:must] << {terms: {contextinstanceid: module_ids.map { |x| x.to_i }}}
+    end
+
+    unless options[:student_ids].blank?
+      student_ids = options[:student_ids]
+      if options[:student_ids].is_a? String
+        student_ids = options[:student_ids].split(",")
+      end
+      search_body[:query][:bool][:must] << {terms: {userid: student_ids.map { |x| x.to_i }}}
     end
 
     search_body[:query][:bool][:must_not] = {match: {component: {query: "report_*"}}}

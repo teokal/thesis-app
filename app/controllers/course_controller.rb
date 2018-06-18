@@ -4,14 +4,15 @@ class CourseController < ApplicationController
     queries = params[:query].split(",")
     data_table = []
     keys = params[:query] == "all" ? %w(viewed) : queries
-    module_ids = params[:module_ids]
-    if !params[:module_ids].nil? && ((params[:module_ids].include? -1) || (params[:module_ids].include? "-1"))
+    module_ids = Array(params[:module_ids].blank? ? [] : params[:module_ids].reject { |c| c.blank? })
+    student_ids = Array(params[:student_ids].blank? ? [] : params[:student_ids].reject { |c| c.blank? })
+    if (params[:module] == "course_module" && !module_ids.blank? && ((module_ids.include? -1) || (module_ids.include? "-1")))
       module_ids = MoodleController.contents(course_id).collect { |x| x[:id] }
     end
     keys.each do |query|
       data_table << Hash[query, ES_CONTROLLER.query_es({from_date: params[:from_date], to_date: params[:to_date],
                                                         query: query, view: params[:view], module: params[:module],
-                                                        course_id: course_id, module_ids: module_ids})]
+                                                        course_id: course_id, module_ids: module_ids, student_ids: student_ids})]
     end
 
     data_t = ES_CONTROLLER.transform_response(data_table, keys)
@@ -135,6 +136,8 @@ class CourseController < ApplicationController
 
   def custom_categories_graph(user)
     course_id = params[:course_id].to_i
+    user.initialize_course_categories(course_id)
+
     moodle_activities = MoodleController.contents(course_id).map { |s| Hash[s[:id], s[:title]] }.reduce({}, :merge)
 
     categories = user.course_categories.preload(:activities).where(course_id: course_id, final: true).order("name = \"Uncategorized\"")
