@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       get "courses/notes", to: "note#notes"
 
       get "courses/logs", to: "course#get_logs"
+      post "courses/logs", to: "course#get_logs"
       get "courses/contents", to: "course#get_course_contents"
       get "courses/custom_categories_graph", to: "course#get_custom_categories_graph"
       get "courses/enrolled_users", to: "course#get_enrolled_users"
