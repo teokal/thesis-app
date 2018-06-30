@@ -84,11 +84,11 @@ class UserController < ApplicationController
       course_id = params[:course_id].to_i
       moodle_activities = MoodleController.contents(course_id).map { |s| Hash[s[:id], s[:title]] }.reduce({}, :merge)
 
-      categories = user.course_categories.preload(:activities).where(course_id: course_id, final: true).order("name = \"Uncategorized\"")
+      categories = user.course_categories.where(course_id: course_id, final: true).order("name = \"Uncategorized\"")
       default_category = categories.find_by(name: "Uncategorized", final: true, course_id: course_id)
 
       if user.initialize_custom_activities(moodle_activities, default_category)
-        activities = categories.map(&:activities).flatten
+        activities = user.activities.where(course_category_id: categories).preload(:category)
         return activities.map { |activity|
                  actvt = {
                    id: activity.id,
