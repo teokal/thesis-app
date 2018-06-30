@@ -17,10 +17,10 @@ class Api::V1::UserController < Api::V1::ApiController
                      first_name: user_info["firstname"],
                      last_name: user_info["lastname"],
                      full_name: user_info["fullname"],
-                     access_token: SecureRandom.hex(30),
+                     access_token: SecureRandom.hex(64),
                      moodle_token: token,
                      moodle_user_id: user_info["userid"],
-                     expires_at: 100.minute.from_now,
+                     expires_at: 8.hour.from_now,
                      picture_url: user_info["userpictureurl"],
                    })
 

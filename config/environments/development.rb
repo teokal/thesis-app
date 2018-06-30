@@ -1,16 +1,15 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  ENV['MOODLE_DB_PREFIX'] = 'mdl_'
-  ENV['ES_HOST_URL'] = '83.212.100.184:9200'
-  ENV['ES_INDEX'] = 'moodle_logs'
+  ENV["MOODLE_DB_PREFIX"] = "mdl_"
+  ENV["ES_HOST_URL"] = "83.212.100.184:9200"
+  ENV["ES_INDEX"] = "moodle_logs"
 
+  ENV["MOODLE_HOST_URL"] = "http://83.212.105.139"
+  ENV["MOODLE_TOKEN"] = "d1bb89587da69cd4242baddbce23c1ca"
+  ENV["MOODLE_SERVICE_SHORT"] = "laws"
 
-  ENV['MOODLE_HOST_URL'] = 'http://83.212.105.139'
-  ENV['MOODLE_TOKEN'] = 'd1bb89587da69cd4242baddbce23c1ca'
-  ENV['MOODLE_SERVICE_SHORT'] = 'laws'
-
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_mailer.default_url_options = {host: "localhost", port: 3000}
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
@@ -20,7 +19,7 @@ Rails.application.configure do
   config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.

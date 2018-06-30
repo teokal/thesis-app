@@ -3,19 +3,14 @@ require "elasticsearch"
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:index]
   protect_from_forgery with: :exception
 
   ES_CONTROLLER = EsController.new
   MODULES_OF_INTEREST = %w(assignment quiz forum scorm resource page folder url)
 
   def index
-  end
-
-  def generate_csrf_token
-    app_controller = ActionController::Base::ApplicationController.new
-    app_controller.request = ActionDispatch::Request.new({})
-    app_controller.send(:form_authenticity_token)
+    render :json => {:errors => "This is an API-only application. Use routes as given on documentation."}, :status => :bad_request
   end
 
   def course_params_serializer(user, course_id)
