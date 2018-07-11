@@ -1,10 +1,10 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  ENV["MOODLE_DB_PREFIX"] = "mdl_"
   ENV["ES_HOST_URL"] = "83.212.100.184:9200"
   ENV["ES_INDEX"] = "moodle_logs"
-
+  
+  ENV["MOODLE_DB_PREFIX"] = "mdl_"
   ENV["MOODLE_HOST_URL"] = "http://83.212.105.139"
   ENV["MOODLE_TOKEN"] = "d1bb89587da69cd4242baddbce23c1ca"
   ENV["MOODLE_SERVICE_SHORT"] = "laws"

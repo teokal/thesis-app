@@ -31,11 +31,11 @@ class MoodleController < ActiveRecord::Base
 
     self.connection.exec_query("
         SELECT cmc.coursemoduleid, m.name, cm.instance, cmc.userid, cmc.completionstate
-          FROM mdl_course_modules cm
+          FROM #{ENV["MOODLE_DB_PREFIX"]}course_modules cm
           INNER JOIN 
-            mdl_course_modules_completion cmc ON cm.id = cmc.coursemoduleid
+          #{ENV["MOODLE_DB_PREFIX"]}course_modules_completion cmc ON cm.id = cmc.coursemoduleid
           JOIN 
-            mdl_modules m ON cm.module = m.id
+          #{ENV["MOODLE_DB_PREFIX"]}modules m ON cm.module = m.id
           WHERE
             cm.course = #{Integer(course_id)} AND 
             cm.completion <> 0 AND 

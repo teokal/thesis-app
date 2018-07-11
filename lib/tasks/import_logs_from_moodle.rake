@@ -16,7 +16,7 @@ task :import_logs_from_moodle => :environment do |t, args|
     )['aggregations']['max_id']['value'].to_i
 
     # query new logs from moodle database table
-    logs = connection.execute("select * from `mdl_logstore_standard_log` where `id` > #{max_id};")
+    logs = connection.execute("select * from `#{ENV["MOODLE_DB_PREFIX"]}logstore_standard_log` where `id` > #{max_id};")
     fields = logs.fields
 
     logs.each_slice(LOGS_CHUNK) do |logs_chunk|
