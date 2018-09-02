@@ -1,7 +1,14 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # Fabulous Devise - Login
+  ENV['ES_HOST_URL'] = 'elasticsearch'
+  ENV['ES_INDEX'] = 'moodle_logs'
+
+  ENV['MOODLE_DB_PREFIX'] = Rails.application.secrets.MOODLE_DB_PREFIX
+  ENV['MOODLE_HOST_URL'] = Rails.application.secrets.MOODLE_HOST_URL
+  ENV['MOODLE_TOKEN'] = Rails.application.secrets.MOODLE_TOKEN
+  ENV['MOODLE_SERVICE_SHORT'] = Rails.application.secrets.MOODLE_SERVICE_SHORT
+
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
@@ -12,7 +19,7 @@ Rails.application.configure do
   config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -36,4 +43,6 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  config.debug_exception_response_format = :api
 end

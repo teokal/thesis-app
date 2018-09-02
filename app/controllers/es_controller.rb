@@ -1,74 +1,127 @@
-require 'net/http'
-require 'uri'
-require 'json'
-require 'date'
-require 'time'
+require "net/http"
+require "uri"
+require "json"
+require "date"
+require "time"
+require "hashie"
+require "typhoeus"
+require "typhoeus/adapters/faraday"
+require "elasticsearch"
+require "elasticsearch/dsl"
+include Elasticsearch::DSL
 
 class EsController < ApplicationController
-
-  def index
-
-  end
-
   def show
-    @time_values = [['1 month', 1], ['2 months', 2], ['6 months', 6], ['1 year', 12], ['2 years', 24], ['since 2007', 120]]
-    @from_date = params['from_date'] ||= 5.years.ago.to_time.to_i
-    @to_date = params['to_date'] ||= 2.years.ago.to_time.to_i
+    @time_values = [
+      ["1 month", 1], ["2 months", 2], ["6 months", 6],
+      ["1 year", 12], ["2 years", 24], ["since 2007", 120],
+    ]
+    @from_date = params[:from_date] ||= 12
+    @to_date = params[:to_date] ||= Time.now.to_i
+    @query = params[:query]
   end
 
-  def logins
-    actions(params['from_date'],
-            params['to_date'],
-            'login')
-  end
-
-  def logouts
-    actions(params['from_date'],
-            params['to_date'],
-            'logout')
-  end
-
-  def writes
-    actions(params['from_date'],
-            params['to_date'],
-            'write')
-  end
-
-  def actions(from_date, to_date, query)
-
-    from_date = 5 * 12 if from_date.nil?
-    to_date = 2 * 12 if to_date.nil?
-
-    from_date = (Time.now.to_datetime - from_date.to_i.months).to_time.to_i
-    to_date = (Time.now.to_datetime - to_date.to_i.months).to_time.to_i
-
-    uri = URI.parse('http://83.212.100.184:9200/moodle-*/_search?scroll=1m')
-    request = Net::HTTP::Get.new(uri)
-    request.body = "{\"from\":0,\"size\":100000,
-                    \"sort\":[{\"@timestamp\":
-                              {\"order\": \"desc\",
-                              \"unmapped_type\": \"boolean\"}}],
-                    \"slice\":{\"id\":0,\"max\":10},
-                    \"query\":{\"bool\":{\"must\":[
-                          {\"match\":{\"action\":
-                               {\"query\":\"#{query}\",\"type\":\"phrase\"}}},
-                    {\"range\":{\"time\":
-                               {\"gte\":#{from_date},\"lte\":#{to_date}}}}
-                     ]}}}"
-
-    response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(request)
-    end
-
+  def query_es(options = {})
     data = []
-    JSON.parse(response.body)['hits']['hits'].each do |ea|
-      data << ea['_source'].as_json(only: %w[id ip userid time])
-                  .merge!({date: (ea['_source']['@timestamp']).to_date,
-                           index: ea['_index'],
-                           id: ea['_id']
-                          })
+
+    if options[:from_date].length == 3 #now
+      from_date_tmp = DateTime.now
+    elsif options[:from_date].length == 4 #year
+      from_date_tmp = DateTime.new(options[:from_date].to_i)
+    else #full-date
+      from_date_tmp = DateTime.strptime(options[:from_date], "%d-%m-%Y")
     end
 
-    render json: Hash[data.group_by_month {|u| u[:date]}.map {|k, v| [k, v.size]}]
+    if options[:to_date].length == 3 #now
+      to_date_tmp = DateTime.now
+    elsif options[:to_date].length == 4 #year
+      to_date_tmp = DateTime.new(options[:to_date].to_i)
+    else #full-date
+      to_date_tmp = DateTime.strptime(options[:to_date], "%d-%m-%Y")
+    end
+
+    from_date = from_date_tmp.beginning_of_day.strftime("%Q").to_i
+    to_date = to_date_tmp.end_of_day.strftime("%Q").to_i
+
+    search_body = {
+      size: 0,
+      query: {bool: {}},
+      aggregations: {
+        sums: {date_histogram: {field: "timecreated",
+                                interval: options[:view],
+                                time_zone: "Europe/Athens",
+                                min_doc_count: 1,
+                                format: "strict_date_hour_minute_second"}},
+      },
+      sort: {"timecreated" => {order: "desc", unmapped_type: "boolean"}},
+    }
+
+    search_body[:query][:bool][:must] = [
+      {query_string: {analyze_wildcard: true, query: "*"}},
+      {range: {"timecreated" => {gte: from_date, lte: to_date, format: "epoch_millis"}}},
+      {match: {target: {query: options[:module]}}},
+      {match: {action: {query: options[:query]}}},
+    ]
+
+    unless options[:module] != "course_module" || options[:module_ids].blank?
+      module_ids = options[:module_ids]
+      if options[:module_ids].is_a? String
+        module_ids = options[:module_ids].split(",")
+      end
+      search_body[:query][:bool][:must] << {terms: {contextinstanceid: module_ids.map { |x| x.to_i }}}
+    end
+
+    unless options[:student_ids].blank?
+      student_ids = options[:student_ids]
+      if options[:student_ids].is_a? String
+        student_ids = options[:student_ids].split(",")
+      end
+      search_body[:query][:bool][:must] << {terms: {userid: student_ids.map { |x| x.to_i }}}
+    end
+
+    search_body[:query][:bool][:must_not] = {match: {component: {query: "report_*"}}}
+
+    search_body[:query][:bool][:should] = Array(options[:course_id])
+      .map { |id| {match: {courseid: id.to_i}} }
+
+    search_body[:query][:bool][:minimum_should_match] = 1
+
+    response = ES_CLIENT.search({index: ENV["ES_INDEX"], body: search_body})
+
+    response["aggregations"]["sums"]["buckets"].each do |row|
+      data << {date: row["key_as_string"], value: row["doc_count"]}
+    end
+
+    data
+  end
+
+  def transform_response(data_table, keys)
+    data_t = data_table.inject({}) do |a, e|
+      action, data = e.first
+      data.each do |x|
+        a[x[:date]] ||= Hash[keys.product([0])]
+        a[x[:date]][action] = x[:value]
+      end
+      a
+    end
+    data_t.map { |k, v| v.update(:date => k) }
   end
 end
+
+####
+# ELASTICSEARCH - NOTES
+
+## Possible aggregations
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html
+# year, quarter, month, week, day, hour, minute, second
+
+## Range
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
+# y years
+# M months
+# w weeks
+# d days
+# h hours
+# H hours
+# m minutes
+# s seconds
