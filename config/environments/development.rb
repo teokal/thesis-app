@@ -1,7 +1,7 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  ENV["ES_HOST_URL"] = "83.212.100.184:9200"
+  ENV["ES_HOST_URL"] = "elasticsearch"
   ENV["ES_INDEX"] = "moodle_logs"
   
   ENV["MOODLE_DB_PREFIX"] = "mdl_"
