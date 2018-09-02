@@ -1,15 +1,15 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  ENV["ES_HOST_URL"] = "elasticsearch"
-  ENV["ES_INDEX"] = "moodle_logs"
-  
-  ENV["MOODLE_DB_PREFIX"] = "mdl_"
-  ENV["MOODLE_HOST_URL"] = "http://83.212.105.139"
-  ENV["MOODLE_TOKEN"] = "d1bb89587da69cd4242baddbce23c1ca"
-  ENV["MOODLE_SERVICE_SHORT"] = "laws"
+  ENV['ES_HOST_URL'] = 'elasticsearch'
+  ENV['ES_INDEX'] = 'moodle_logs'
 
-  config.action_mailer.default_url_options = {host: "localhost", port: 3000}
+  ENV['MOODLE_DB_PREFIX'] = Rails.application.secrets.MOODLE_DB_PREFIX
+  ENV['MOODLE_HOST_URL'] = Rails.application.secrets.MOODLE_HOST_URL
+  ENV['MOODLE_TOKEN'] = Rails.application.secrets.MOODLE_TOKEN
+  ENV['MOODLE_SERVICE_SHORT'] = Rails.application.secrets.MOODLE_SERVICE_SHORT
+
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
