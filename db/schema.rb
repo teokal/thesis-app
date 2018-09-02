@@ -13,96 +13,61 @@
 
 ActiveRecord::Schema.define(version: 20180613010805) do
 
-  create_table "course_categories", force: true do |t|
-    t.integer  "course_id"
-    t.string   "name"
-    t.integer  "user_id"
-    t.boolean  "final",      default: false
-    t.boolean  "deleted",    default: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+  create_table "course_categories", force: :cascade do |t|
+    t.integer  "course_id",  limit: 4
+    t.string   "name",       limit: 255
+    t.integer  "user_id",    limit: 4
+    t.boolean  "final",                  default: false
+    t.boolean  "deleted",                default: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
   end
 
   add_index "course_categories", ["user_id"], name: "index_course_categories_on_user_id", using: :btree
 
-  create_table "course_category_parameters", force: true do |t|
+  create_table "course_category_parameters", force: :cascade do |t|
     t.float   "value",              limit: 24,                 null: false
-    t.integer "series",                                        null: false
-    t.integer "course_category_id"
+    t.integer "series",             limit: 4,                  null: false
+    t.integer "course_category_id", limit: 4
     t.boolean "constant",                      default: false, null: false
-    t.integer "course_id",                                     null: false
-    t.integer "user_id"
+    t.integer "course_id",          limit: 4,                  null: false
+    t.integer "user_id",            limit: 4
   end
 
   add_index "course_category_parameters", ["course_category_id"], name: "index_course_category_parameters_on_course_category_id", using: :btree
   add_index "course_category_parameters", ["user_id"], name: "index_course_category_parameters_on_user_id", using: :btree
 
-  create_table "courses", force: true do |t|
-    t.integer  "coursecategory",    limit: 8,          default: 0,        null: false
-    t.integer  "sortorder",         limit: 8,          default: 0,        null: false
-    t.string   "fullname",          limit: 254,        default: "",       null: false
-    t.string   "shortname",                            default: "",       null: false
-    t.string   "idnumber",          limit: 100,        default: "",       null: false
-    t.text     "summary",           limit: 2147483647
-    t.integer  "summaryformat",     limit: 1,          default: 0,        null: false
-    t.string   "format",            limit: 21,         default: "topics", null: false
-    t.integer  "showgrades",        limit: 1,          default: 1,        null: false
-    t.integer  "newsitems",         limit: 3,          default: 1,        null: false
-    t.integer  "startdate",         limit: 8,          default: 0,        null: false
-    t.integer  "marker",            limit: 8,          default: 0,        null: false
-    t.integer  "maxbytes",          limit: 8,          default: 0,        null: false
-    t.integer  "legacyfiles",       limit: 2,          default: 0,        null: false
-    t.integer  "showreports",       limit: 2,          default: 0,        null: false
-    t.boolean  "visible",                              default: true,     null: false
-    t.boolean  "visibleold",                           default: true,     null: false
-    t.integer  "groupmode",         limit: 2,          default: 0,        null: false
-    t.integer  "groupmodeforce",    limit: 2,          default: 0,        null: false
-    t.integer  "defaultgroupingid", limit: 8,          default: 0,        null: false
-    t.string   "lang",              limit: 30,         default: "",       null: false
-    t.string   "theme",             limit: 50,         default: "",       null: false
-    t.integer  "timecreated",       limit: 8,          default: 0,        null: false
-    t.integer  "timemodified",      limit: 8,          default: 0,        null: false
-    t.boolean  "requested",                            default: false,    null: false
-    t.boolean  "enablecompletion",                     default: false,    null: false
-    t.boolean  "completionnotify",                     default: false,    null: false
-    t.integer  "cacherev",          limit: 8,          default: 0,        null: false
-    t.string   "calendartype",      limit: 30,         default: "",       null: false
-    t.integer  "moodle_id",         limit: 8,          default: 0,        null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "custom_activities", force: true do |t|
-    t.integer "activity_id"
-    t.integer "user_id"
-    t.integer "course_category_id"
+  create_table "custom_activities", force: :cascade do |t|
+    t.integer "activity_id",        limit: 4
+    t.integer "user_id",            limit: 4
+    t.integer "course_category_id", limit: 4
   end
 
   add_index "custom_activities", ["course_category_id"], name: "index_custom_activities_on_course_category_id", using: :btree
   add_index "custom_activities", ["user_id"], name: "index_custom_activities_on_user_id", using: :btree
 
-  create_table "users", force: true do |t|
-    t.string   "email"
-    t.string   "access_token"
-    t.integer  "sign_in_count",          default: 0,  null: false
+  create_table "users", force: :cascade do |t|
+    t.string   "email",                  limit: 255
+    t.string   "access_token",           limit: 255
+    t.integer  "sign_in_count",          limit: 4,   default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.string   "encrypted_password",     default: "", null: false
-    t.string   "reset_password_token"
+    t.string   "current_sign_in_ip",     limit: 255
+    t.string   "last_sign_in_ip",        limit: 255
+    t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "username"
-    t.string   "moodle_token"
-    t.integer  "moodle_user_id"
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.string   "username",               limit: 255
+    t.string   "moodle_token",           limit: 255
+    t.integer  "moodle_user_id",         limit: 4
     t.datetime "expires_at"
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "full_name"
-    t.string   "picture_url"
+    t.string   "first_name",             limit: 255
+    t.string   "last_name",              limit: 255
+    t.string   "full_name",              limit: 255
+    t.string   "picture_url",            limit: 255
   end
 
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
